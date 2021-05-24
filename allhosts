@@ -1,0 +1,9 @@
+#The following are manual entries for ansible
+192.168.0.31	master
+192.168.0.32	node1
+192.168.0.33	node2
+192.168.0.34	node3
+192.168.0.38	PrimaryPi4b
+192.168.0.5	PiModel3
+192.168.0.37	Node5cm
+
