@@ -1,1 +1,1 @@
-docker stack deploy -c portainer-agent-stack.yml portainer
+_docker stack deploy -c portainer-agent-stack.yml portainer_

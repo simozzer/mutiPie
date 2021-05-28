@@ -26,6 +26,8 @@ res.setHeader('Access-Control-Allow-Origin', '*');
 
   res.write(data) // a response to the client
   res.end(); //end the response
-})
+}).catch( err => {
+  res.write(JSON.stringify(err));
+});
 
 }).listen(8083); //the server object listens on port 8083
