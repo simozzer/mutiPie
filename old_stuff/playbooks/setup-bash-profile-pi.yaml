@@ -1,0 +1,9 @@
+- name: Setup bash profile for Pi on all hosts
+  hosts: localhost
+  become: no
+  tasks:
+    - name: change user shell to bash 
+      become: yes
+      user:
+        name: "pi"
+        shell: /bin/bash

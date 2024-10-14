@@ -1,9 +1,0 @@
-echo { \"PIES\": [
-echo `ssh pi@192.168.0.31 mymon`,
-echo `ssh pi@192.168.0.32 mymon`,
-echo `ssh pi@192.168.0.33 mymon`,
-echo `ssh pi@192.168.0.34 mymon`,
-echo `ssh pi@192.168.0.5 mymon`,
-echo `ssh pi@192.168.0.37 mymon`,
-echo `mymon`
-echo ]}

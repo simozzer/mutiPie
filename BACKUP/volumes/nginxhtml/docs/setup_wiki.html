@@ -1,0 +1,88 @@
+<html>
+    <head>
+        <title>Steps to setup wiki server in K3s Pi cluster</title>
+        <link rel="stylesheet" href="./docstyles.css">
+    </head>    
+    <div>
+        <h2>Tweaks</h2>
+        <code>
+        sudo nano mariadb.cnf
+        </code>
+
+        <div>
+        change to use port instead of socket by editing file
+        </div>
+
+        Restart K3s: 
+    </div>
+
+
+    <div>
+    <h2>Create a database (using an existing instance of mysql)</h2>
+    <ul>
+
+        <li><code>mysql -u simozzer -p -h 192.168.1.90</code></li>
+
+        <li><code>create database wiki</code></li>
+
+        <li><code>create user wiki identified by 'wiki'</code></li>
+
+        <li><code>grant all on wiki.* to wiki@'%' with grant option</code></li>
+
+        <li><code>flush privileges</code></li>
+
+        <li><code>exit</code></li>
+    </ul>
+    </div>
+
+
+    <div>
+        <h2>Create a deployment for the wiki</h2>
+        <h5>Using a 'hosts' file containing the IP addresses for different categories of machines in the cluster</h5>
+        <div class="filename">wiki_deployment.yml</div>
+        <pre><code>place the
+code here
+...
+sudo kubectl run wiki --image mediawiki-docker:alpine
+        </code></pre>
+    </div>
+
+    <div>
+        <h2>Create a service for the wiki</h2>
+        <h5>Using a 'hosts' file containing the IP addresses for different categories of machines in the cluster</h5>
+        <div class="filename">wiki_service.yml</div>
+        <pre><code>place the
+code here
+        </code></pre>
+    </div>
+
+
+    <div>
+        <h2>Create an ingress for the wiki</h2>
+        <h5>Using a 'hosts' file containing the IP addresses for different categories of machines in the cluster</h5>
+        <div class="filename">wiki_ingress.yml</div>
+        <pre><code>place the
+code here
+        </code></pre>
+    </div>    
+
+    <pre>
+    sudo kubectl cp ./LocalSettings.php default/wikiserver-79cb7d66bb-ft2fx:/var/www/html/includes/LocalSettings.php
+    </pre>
+
+then connect to pod and copy file from includes into root.
+
+<pre>
+    cp /var/www/html/includes/LocalSettings.php .
+</pre>
+
+http://piserver:8087/index.php/Main_Page
+
+Change LocalSettings.php
+## The protocol and server name to use in fully-qualified URLs
+$wgServer = 'http://piserver:8087';    
+
+
+
+
+</html>

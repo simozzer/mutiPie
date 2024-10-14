@@ -1,0 +1,38 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  #name and label for deployment
+  name: gitserver
+  labels:
+    app: gitserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      # re-use deployment label
+      app: gitserver
+  template:
+    metadata:
+      labels:
+        #re-use deployment label
+        app: gitserver
+    spec:
+      containers:
+        #re-use deployment label
+        - name: gitserver
+          # name of image to use 
+          image: alpine/git
+          ports:
+            #name of port will be re-used in service and ingress 
+            - name: git
+              containerPort: 9418
+          volumeMounts:
+          # name of path in container
+          - mountPath: /git
+            # name of volmume to use at this mound point
+            name: git-volume
+      volumes:
+      - name: git-volume
+        hostPath:
+          path: /mnt/samba/volumes/git
+

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<body onLoad="doLoaded()">
+
+    <head title="SiDoku: A puzzle solver">
+        <script src="./sidmain.js">
+        </script>
+        <script src="./sidevents.is">
+        </script>
+        <script src="./sidqueries.js">
+        </script>
+        <script src="./sidrender.js">
+        </script>
+        <script src="./sidsolver.js">
+        </script>
+        <script src="./sisdata.js">
+        </script>        
+        <link rel="stylesheet" href="./siduko.css">
+    </head>
+    
+    <body onLoad="doLoaded()">
+        <h1 id="mainheader">Sidoku</h1>
+        <h4>A program for solving Sudoku puzzles </h4>
+        <div id="outer">
+            
+            <div id="menucontainer">
+            <label for="menu">Choose an option:</label>
+            <select name="menu" id="menu">
+                <option value="None"></option>
+                <option value="Difficult">Shining Mirror (Difficult)</option>
+                <option value="Easier">Easier</option>
+                <option value="Custom">Custom...</option>            
+            </select>
+            </div>
+        
+            
+            </p>
+            <div id="everywhere"></div>
+            <h2 id="infotext"></h2>
+            <button id="solvebutton" disabled="true" hidden="true">Solve</button>
+    
+        </div>
+
+	<div class="linkarea"></div>
+		<ul>
+		<li><a href="http://piserver:30777">Portainer</a></li>
+		<li><a href="http://piserver:9000/dashboard/">Traefik</a></li>
+		<li><a href="http://piserver:3000">Grafana</a></li>
+        	<li><a href="http://piserver:8100">DB Admin</a></li>
+	        <li><a href="http://piserver:3306">MySql running on port 3306</a></li>
+		<li><a href="http://piserver:8087/index.php/Main_Page">MediaWiki</a></li>
+        	</ul>
+		<h4>the next step is to get these working</h4>
+		<a href="http://piserver:8087">Jenkins</a>
+		<a href="http://piserver:3002">Gitea</a>
+		<a href="http://piserver:8083/admin">Pi Hole</a>
+	</div>        
+
+    <duv>
+        <ul>
+            <li><a href="docs/k3sstuff.html">Restarting Webserver after power outage</a></li>
+            <li><a href="docs/setup_wiki.html">Setting up a local wiki</a></li>
+        </ul>
+    </duv>
+    </body>
+    
+    </html>
+
+</body>
+
+</html>

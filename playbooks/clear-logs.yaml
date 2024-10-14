@@ -1,7 +1,0 @@
-- hosts: all
-  become: true
-  tasks:
-    - name: Clear log files from /var/log
-      file: 
-        state: absent
-        path: /var/log/*

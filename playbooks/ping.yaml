@@ -1,4 +1,0 @@
-- name: Test ping
-  hosts: all
-  tasks:
-  - action: ping

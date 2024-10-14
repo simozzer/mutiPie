@@ -1,0 +1,163 @@
+<html>
+    <head>
+        <title>Steps to restart webserver in K3s Pi cluster</title>
+        <link rel="stylesheet" href="./docstyles.css">
+    </head>
+    <h1>Steps to restart webserver in K3s Pi cluster</h1>
+
+    <div>
+        <h2>kill the current webserver deployment</h2>
+        <code>
+            sudo kubectl delete deployment webserver
+        </code>    
+    </div>
+
+    <div>
+        <h2>SSH into the file server, and reload configuration</h2>
+    <pre><code>
+ssh simozzer@pi4node4
+sudo systemctl daemon-reload
+exit        
+    </code></pre>
+    </div>
+
+    <div>
+        <h2>Reconnect the shared folder to each of the machines in the cluster</h2>
+        <h5>Using a 'hosts' file containing the IP addresses for different categories of machines in the cluster</h5>
+        <div class="filename">mypis</div>
+        <pre><code>[pi4s]
+10.90.90.91
+10.90.90.92
+10.90.90.93
+10.90.90.99
+10.90.90.98
+
+[controllers]
+10.90.90.91
+
+[workers]
+10.90.90.91
+10.90.90.92
+10.90.90.93
+10.90.90.98
+
+[storage]
+10.90.90.99
+        </code></pre>
+    </div>
+
+    <div>
+        <h5>Create a yaml file, which will be used for remounting a network share</h5>
+        <div class="filename">mount_share.yml</div>
+        <pre><code>- name: "Mount shared volume"
+  hosts: workers
+  remote_user: simozzer
+
+  tasks:
+  - name: "systemctl daemon-reload"
+    become: true
+    command: systemctl daemon-reload
+
+  - name: "Mount all"
+    become: true
+    command: mount -a
+        </code></pre>
+    </div>
+
+
+    <div>
+        <h5>Run this in ansible</h5>
+        <code>
+            ansible-playbook -i mypis mount_share.yml
+        </code>
+    </div>
+
+    <div>
+        <h2>(Re)deploy webserver</h2>
+        <div>
+            <div class="filename">nginx-deployment.yaml</div>
+        <pre><code>kind: Deployment
+apiVersion: apps/v1
+metadata:
+    name: webserver
+    labels:
+    app: webserver
+spec:
+    replicas: 1
+    selector:
+    matchLabels:
+        app: webserver
+    template:
+    metadata:
+        labels:
+        app: webserver
+    spec:
+        containers:
+        - name: webserver
+            image: nginx
+            ports:
+            - name: web
+                containerPort: 80
+            volumeMounts:
+            - mountPath: /usr/share/nginx/html
+            name: nginx-html-volume
+        volumes:
+        - name: nginx-html-volume
+        hostPath:
+            path: /mnt/samba/volumes/nginxhtml            
+        </code></pre>
+        </div>
+
+        <div>
+            <div class="filename">nginx-services.yaml</div>
+            <pre><code>apiVersion: v1
+kind: Service
+metadata:
+    name: webserver
+
+spec:
+    ports:
+    - name: web
+        port: 80
+        targetPort: web
+    selector:
+    app: webserver    
+            </code></pre>
+        </div>
+
+        <div>
+            <div class="filename">nginx-ingress.yaml</div>
+            <pre><code>apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+    name: webserver-ingress
+spec:
+    rules:
+    - http:
+        paths:
+        - path: /
+        pathType: Prefix
+        backend:
+            service:
+            name: webserver
+            port:
+                name: web
+            </code></pre>
+        </div>
+
+        <div>
+            <h5>deploy in k3s</h5>
+            <code>
+                sudo kubectl apply -f ./nginx-deployment.yaml  -f ./nginx-services.yaml -f ./nginx-ingress.yaml
+            </code>            
+        </div>
+
+        <div>
+            <h2>Test in browser</h2>
+            <div class="url">
+                http://192.168.0.90
+            </div>            
+        </div>
+
+    </div>
+</html>

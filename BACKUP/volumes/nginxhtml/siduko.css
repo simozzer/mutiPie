@@ -1,0 +1,86 @@
+.sidukoTable {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sidukoTable .cell {
+    border: 1px solid black;
+    padding: 4px;
+}
+
+.sidukoTable table td {
+    width: 30px;
+    height: 30px;
+    padding: 2px;
+    background-color: lightgray;
+    text-align: center;
+}
+
+.sidukoTable table td:hover {
+    background-color: lightskyblue;
+}
+
+.sidukoTable table td:focus {
+    background-color: yellow;
+}
+
+.sidukoTable table td.solved {
+    font-weight: bold;
+    background-color: aqua;
+}
+
+.sidukoTable table td.entered {
+    font-weight: light;
+    background-color: navy;
+    color: white;
+}
+
+.sidukoTable table td.fixed {
+    font-weight: bold;
+    color: red;
+    background-color: lightpink;
+}
+
+.sidukoTable table td.suggested {
+    font-weight: light;
+    color: navy;
+    background-color: rgb(195, 255, 0);
+}
+
+@keyframes puzzlesolved {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.sidukoTable.solved table td {
+    animation-name: puzzlesolved;
+    animation-duration: 4s;
+}
+
+#outer {
+    width: 100%;
+}
+
+#menucontainer {
+    text-align: center;
+}
+
+#infotext {
+    text-align: center;
+}
+
+#mainheader {
+    text-align: center;
+}
+
+h4 {
+    text-align: center;
+    font-weight: 100;
+    font-style: italic;
+    color:cornflowerblue;
+}

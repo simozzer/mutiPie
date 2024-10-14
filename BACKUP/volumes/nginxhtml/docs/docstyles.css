@@ -1,0 +1,25 @@
+pre {
+    margin-left: 30px;
+    margin-right: 30px;
+    border: 2px solid blue;
+    background-color:bisque;
+}
+code {
+    background-color:bisque;
+}
+
+.filename {
+    font-weight: 600;
+    font-style:italic;
+    color:chocolate;
+}
+
+.filename:before {
+    content: "Filename: ";
+    color: brown;
+}
+
+.url {
+    font-weight: 600;
+    font-style: underline;
+}

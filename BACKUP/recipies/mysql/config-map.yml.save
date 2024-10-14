@@ -1,0 +1,12 @@
+apiVersion: v1
+data:
+  sport: cricket
+kind: ConfigMap
+# You can leave the existing metadata as they are.
+# The values you'll see won't exactly match these.
+metadata:
+  creationTimestamp: "2024-01-04T14:05:06Z"
+  name: mysql-config
+  namespace: mysql-server
+  resourceVersion: "1743935"
+  uid: 024ee001-fe72-487e-872e-34d6464a8a23

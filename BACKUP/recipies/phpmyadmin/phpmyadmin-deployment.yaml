@@ -1,0 +1,35 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: mysql-phpadmin
+  labels:
+    app: mysql-phpadmin
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-phpadmin
+  template:
+    metadata:
+      labels:
+        app: mysql-phpadmin
+    spec:
+      containers:
+        - name: mysql-phpadmin
+          image: phpmyadmin
+          ports:
+            - name: sqladmin
+              containerPort: 80
+          env:
+            # Hostname of the MySQL server
+            # (As named in MySQL deployment)
+            - name: PMA_HOST
+              value: 192.168.1.90
+            # Port of the MySQL server
+            - name: PMA_PORT
+              value: "3306"
+            # Root password for MySQL
+            # (As added in MySQL deployment)
+            - name: MYSQL_ROOT_PASSWORD
+              value: "secret"
