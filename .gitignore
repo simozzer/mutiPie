@@ -104,5 +104,5 @@ dist
 .tern-port
 
 #
-volumes/BACKUP/mysql-data/*
+./volumes/BACKUP/mysql-data/
 

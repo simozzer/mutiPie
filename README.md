@@ -59,26 +59,24 @@ The above line might not be needed. <pre>sudo chmod 644 /etc/rancher/k3s/k3s.yam
 Check it is installed <pre>kubectl version</pre>
 
 ### Install K3S on the worker nodes ###
-For this we'll create an ansible job. For this, and other ansible stuff, we'll need a hosts file (I've called mine mypis). <pre>[pi4s]
-10.90.90.91
-10.90.90.92
-10.90.90.93
-10.90.90.99
-10.90.90.98
-
-[controllers]
-10.90.90.91
-
-[workers]
+For this we'll create an ansible job. For this, and other ansible stuff, we'll need a hosts file (I've called mine workers). <pre>
 10.90.90.91
 10.90.90.92
 10.90.90.93
 10.90.90.98
-
-[storage]
-10.90.90.99
 </pre>
 
+We will also need a join token: <pre>sudo cat /var/lib/rancher/k3s/server/token</pre>. This will output a value like "K108eec21c50950931cea2effa94a661ca80b97baff215cf6b4db6d0d682934f7c4::server:35993592cf2a23dfdf7a01e1a2e2f929" Copy this value to paste into the next command:
+
+<pre>ansible workers -b -m shell -a "curl -sfL https://get.k3s.io | K3S_URL=https://10.10.0.20:6443 K3S_TOKEN=K108eec21c50950931cea2effa94a661ca80b97baff215cf6b4db6d0d682934f7c4::server:35993592cf2a23dfdf7a01e1a2e2f929 sh -"</pre>
+
+When this has finished run <pre>kubectl get nodes</pre>. The output should look something like this:
+<pre>pi4node1.dev.com   Ready    <none>                      11m    v1.30.5+k3s1
+pi4node2.dev.com   Ready    <none>                      96s    v1.30.5+k3s1
+pi4node3.dev.com   Ready    <none>                      104s   v1.30.5+k3s1
+pi4node4.dev.com   Ready    <none>                      31s    v1.30.5+k3s1
+pi4node5.dev.com   Ready    <none>                      66s    v1.30.5+k3s1
+piserver.dev.com   Ready    control-plane,etcd,master   73m    v1.30.5+k3s1</pre>
 
 
 # mutiPie
