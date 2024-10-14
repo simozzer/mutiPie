@@ -1,0 +1,17 @@
+---
+- name: Reboot all Pi 4s
+  hosts: pi4s
+
+  tasks:
+  - name: Reboot
+    become: true
+    command: reboot
+
+  - name: Daemon Reload
+    command: systemctl daemon-reload
+    become: true
+
+  - name: Mount
+    command: mount -a
+    become: true
+

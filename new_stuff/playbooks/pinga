@@ -1,0 +1,1 @@
+ansible pi4s -i mypis -m ping

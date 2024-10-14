@@ -1,0 +1,1 @@
+ansible-playbook -i mypis update_pi_v4_playbook.yml

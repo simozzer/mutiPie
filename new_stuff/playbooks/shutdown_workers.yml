@@ -1,0 +1,10 @@
+---
+- hosts: workers
+  gather_facts: no
+  tasks:
+    - name: shutdown_workers
+      command: shutdown -h now
+      become: true
+
+    - name: wait go down
+      local_action: wait_for host={{ ansible_ssh_host }} port=22 state=stopped

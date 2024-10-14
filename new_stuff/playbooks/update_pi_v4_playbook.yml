@@ -1,0 +1,17 @@
+---
+- name: update rasberry pi 4 nodes
+  hosts: pi4s
+  remote_user: simozzer
+
+  tasks:
+  - name: Update APT
+    become: true
+    apt:
+      update_cache: yes
+
+  - name: Upgrade API
+    become: true
+    apt:
+      upgrade: dist
+
+

@@ -1,0 +1,15 @@
+---
+- name: "Mount shared volume"
+  hosts: workers
+  remote_user: simozzer
+
+  tasks:
+  - name: "systemctl daemon-reload"
+    become: true
+    command: systemctl daemon-reload
+
+  - name: "Mount all"
+    become: true
+    command: mount -a
+
+
