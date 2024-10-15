@@ -149,8 +149,19 @@ After this check everything is running (this might take a while for everything t
 <pre>kubectl apply -f ./longhorn-service.yaml</pre>
 After this open the UI in a browser <pre>http://192.168.1.201/</pre>
 
+
+##### TROUBLE DELETING LONGHORN #####
+Attempt1: <pre>for crd in $(kubectl get crd -o name | grep longhorn); do kubectl patch $crd -p '{"metadata":{"finalizers":[]}}' --type=merge; done;</pre>
+Attempt2 WORKED: <pre>for crd in $(kubectl get crd -o name | grep longhorn); do kubectl delete $crd; done;</pre>
+
 #### Make Longorn the default storage class ####
 <pre>kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'</pre>
+
+### Install Docker ###
+SKIP THIS... WILL USE pi4node4 FOR BUIDLING DOCKER IMAGES, WHICH CAN THE BE PUSHED TO OUR DOCKER REGISTRY
+
+### Reconfigure pi4node4 ###
+pi4node4 has a nice fast USB NVME drive. I used a rescue disk to shrink the base partition and created a 100GB volume to add to the cluster.
 
 
 
