@@ -55,9 +55,11 @@ ff02::2         ip6-allrouters
 
 
 
+export CONTROL_PLANE_IP=10.10.0.20
+export MY_K3S_TOKEN=dsfuyasdfahjskt234524
 
 //try this  
-<pre>curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --write-kubeconfig-mode 644 --disable servicelb --node-taint CriticalAddonsOnly=true:NoExecute --bind-address=10.10.0.20 --advertise-address=10.10.0.20 --node-ip=10.10.0.20 --disable-cloud-controller --disable local-storage --cluster-init" sh -s -</pre>
+<pre>curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --disable servicelb --token ${MY_K3S_TOKEN} --node-taint CriticalAddonsOnly=true:NoExecute --bind-address ${CONTROL_PLANE_IP} --disable-cloud-controller --disable local-storage<pre>
 
 Check it is installed <pre>kubectl version</pre>
 
@@ -68,21 +70,14 @@ For this we'll create an ansible job. For this, and other ansible stuff, we'll n
 10.90.90.93
 10.90.90.98
 </pre>
-
-We will also need a join token: <pre>sudo cat /var/lib/rancher/k3s/server/token</pre>. This will output a value like "K1046e1084f5f4c6d03db958d0eae229b22e4ebbdb80d85d74c356a7695f72ce5e1::server:6af8b32493374162c2f93add37df2876" Copy this value to paste into the next command:
-
-<pre>ansible workers -b -m shell -a "curl -sfL https://get.k3s.io | K3S_URL=https://10.10.0.20:6443 K3S_TOKEN=K1046e1084f5f4c6d03db958d0eae229b22e4ebbdb80d85d74c356a7695f72ce5e1::server:6af8b32493374162c2f93add37df2876 sh -"</pre>
+<pre>ansible workers -b -m shell -a "curl -sfL https://get.k3s.io | K3S_URL=https://${CONTROL_PLANE_IP}:6443 K3S_TOKEN=${MY_K3S_TOKEN} sh -"</pre>
 
 When this has finished run <pre>kubectl get nodes</pre>. The output should look something like this:
 <pre>pi4node1.dev.com   Ready    <none>                      91s     v1.30.5+k3s1
 pi4node2.dev.com   Ready    <none>                      84s     v1.30.5+k3s1
 pi4node3.dev.com   Ready    <none>                      94s     v1.30.5+k3s1
-pi4node4.dev.com   Ready    <none>                      26s     v1.30.5+k3s1
 pi4node5.dev.com   Ready    <none>                      53s     v1.30.5+k3s1
 piserver.dev.com   Ready    control-plane,etcd,master   4m58s   v1.30.5+k3s1</pre>
-
-Delete pi4node4.dev.com (I want to reserve this as a simple samba server)
-
 
 Note that most of the nodes have no Role. Create a file with the names of the workers (worker_names)<pre>
 pi4node1.dev.com
@@ -114,6 +109,8 @@ Adjust '/etc/environment' so that Helm and other programs know where K8s config 
 
 ### Install MetalLB ###
 (https://rpi4cluster.com/k3s-network-setting/)
+
+This step failed first time because the metrics API was not available.Check if you can run <pre>kubectl top nodes</pre>. If you can't then reboot the control node and try again.
 <pre>./install_metallb.sh</pre>
 
 #### Configure MetalLB ####
@@ -143,7 +140,8 @@ Add ids to hosts
 
 Mount <pre>ansible workers -m ansible.posix.mount -a "path=/storage01 src=UUID={{ var_uuid }} fstype=ext4 state=mounted" -b</pre>
 
-
+### Install Longhorn ##
+<pre>./install_longhorn.sh</pre>
 
 
 
