@@ -1,5 +1,7 @@
 # Restarting building a K3s cluster on some Raspberry Pis #
 
+(Most information is from https://rpi4cluster.com/k3s-kubernetes-install/)
+
 I'm starting from a point where I've already built up and tore down this cluster many times, so there will be packages that
 I'm using which might not be part of the standard install for Raspberry Pi OS. Don't expect to follow these instructions 
 without finding a few undocumented steps.
@@ -50,11 +52,12 @@ ff02::2         ip6-allrouters
 
 ### Install K3S on the master node ###
 (piserver)
-//try this  (using wlan address ro4 --advertise-address?)
-<pre>curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --disable=traefik --flannel-backend=host-gw --tls-san=10.10.0.20 --bind-address=10.10.0.20 --advertise-address=192.168.1.90 --node-ip=10.10.0.20 --cluster-init" sh -s -</pre>
 
-##### To run without sudo ##### <pre>sudo chown -R $USER $HOME/.kube && sudo chown -R $USER /usr/local/bin/kubectl</pre>
-The above line might not be needed. <pre>sudo chmod 644 /etc/rancher/k3s/k3s.yaml</pre>
+
+
+
+//try this  
+<pre>curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --write-kubeconfig-mode 644 --disable servicelb --node-taint CriticalAddonsOnly=true:NoExecute --bind-address=10.10.0.20 --advertise-address=10.10.0.20 --node-ip=10.10.0.20 --disable-cloud-controller --disable local-storage --cluster-init" sh -s -</pre>
 
 Check it is installed <pre>kubectl version</pre>
 
@@ -66,17 +69,63 @@ For this we'll create an ansible job. For this, and other ansible stuff, we'll n
 10.90.90.98
 </pre>
 
-We will also need a join token: <pre>sudo cat /var/lib/rancher/k3s/server/token</pre>. This will output a value like "K108eec21c50950931cea2effa94a661ca80b97baff215cf6b4db6d0d682934f7c4::server:35993592cf2a23dfdf7a01e1a2e2f929" Copy this value to paste into the next command:
+We will also need a join token: <pre>sudo cat /var/lib/rancher/k3s/server/token</pre>. This will output a value like "K1046e1084f5f4c6d03db958d0eae229b22e4ebbdb80d85d74c356a7695f72ce5e1::server:6af8b32493374162c2f93add37df2876" Copy this value to paste into the next command:
 
-<pre>ansible workers -b -m shell -a "curl -sfL https://get.k3s.io | K3S_URL=https://10.10.0.20:6443 K3S_TOKEN=K108eec21c50950931cea2effa94a661ca80b97baff215cf6b4db6d0d682934f7c4::server:35993592cf2a23dfdf7a01e1a2e2f929 sh -"</pre>
+<pre>ansible workers -b -m shell -a "curl -sfL https://get.k3s.io | K3S_URL=https://10.10.0.20:6443 K3S_TOKEN=K1046e1084f5f4c6d03db958d0eae229b22e4ebbdb80d85d74c356a7695f72ce5e1::server:6af8b32493374162c2f93add37df2876 sh -"</pre>
 
 When this has finished run <pre>kubectl get nodes</pre>. The output should look something like this:
-<pre>pi4node1.dev.com   Ready    <none>                      11m    v1.30.5+k3s1
-pi4node2.dev.com   Ready    <none>                      96s    v1.30.5+k3s1
-pi4node3.dev.com   Ready    <none>                      104s   v1.30.5+k3s1
-pi4node4.dev.com   Ready    <none>                      31s    v1.30.5+k3s1
-pi4node5.dev.com   Ready    <none>                      66s    v1.30.5+k3s1
-piserver.dev.com   Ready    control-plane,etcd,master   73m    v1.30.5+k3s1</pre>
+<pre>pi4node1.dev.com   Ready    <none>                      91s     v1.30.5+k3s1
+pi4node2.dev.com   Ready    <none>                      84s     v1.30.5+k3s1
+pi4node3.dev.com   Ready    <none>                      94s     v1.30.5+k3s1
+pi4node4.dev.com   Ready    <none>                      26s     v1.30.5+k3s1
+pi4node5.dev.com   Ready    <none>                      53s     v1.30.5+k3s1
+piserver.dev.com   Ready    control-plane,etcd,master   4m58s   v1.30.5+k3s1</pre>
+
+Delete pi4node4.dev.com (I want to reserve this as a simple samba server)
+
+
+Note that most of the nodes have no Role. Create a file with the names of the workers (worker_names)<pre>
+pi4node1.dev.com
+pi4node2.dev.com
+pi4node3.dev.com
+pi4node5.dev.com
+</pre>
+Run this bash line to assign the label nodes:
+<pre>(readarray -t ARRAY < worker_names; IFS=','; kubectl label nodes "${ARRAY[@]}" kubernetes.io/role=worker)</pre>
+Check that the node labels have been applied
+<pre>kubectl get nodes</pre>
+<pre>pi4node1.dev.com   Ready    worker                      43m    v1.30.5+k3s1
+pi4node2.dev.com   Ready    worker                      33m    v1.30.5+k3s1
+pi4node3.dev.com   Ready    worker                      33m    v1.30.5+k3s1
+pi4node5.dev.com   Ready    worker                      32m    v1.30.5+k3s1
+piserver.dev.com   Ready    control-plane,etcd,master   105m   v1.30.5+k3s1</pre>
+Add another custom label:
+<pre>(readarray -t ARRAY < worker_names; IFS=','; kubectl label nodes "${ARRAY[@]}" node-type=worker)</pre>
+
+Adjust '/etc/environment' so that Helm and other programs know where K8s config is found.
+<pre>ansible cube -b -m lineinfile -a "path='/etc/environment' line='KUBECONFIG=/etc/rancher/k3s/k3s.yaml'"</pre>
+
+### Install Helm ###
+(https://rpi4cluster.com/k3s-helm-arkade/)
+<pre>./install_helm.sh</pre>
+
+### Install Arkade ####
+<pre>curl -sLS https://get.arkade.dev | sudo sh</pre>
+
+### Install MetalLB ###
+(https://rpi4cluster.com/k3s-network-setting/)
+<pre>./install_metallb.sh</pre>
+
+#### Configure MetalLB ####
+<pre>./configure_metallb.sh</pre>
+Then test
+<pre>kubectl get pods -n metallb-system</pre>
+
+
+
+
+
+
 
 
 # mutiPie
