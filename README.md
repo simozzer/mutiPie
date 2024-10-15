@@ -141,8 +141,16 @@ Add ids to hosts
 Mount <pre>ansible workers -m ansible.posix.mount -a "path=/storage01 src=UUID={{ var_uuid }} fstype=ext4 state=mounted" -b</pre>
 
 ### Install Longhorn ##
-<pre>./install_longhorn.sh</pre>
+<pre>./install_longhorn.sh</pre> 
+After this check everything is running (this might take a while for everything to enter the 'running' state)
+<pre>kubectl -n longhorn-system get pods</pre>
 
+#### Setup service for metallb UI ####
+<pre>kubectl apply -f ./longhorn-service.yaml</pre>
+After this open the UI in a browser <pre>http://192.168.1.201/</pre>
+
+#### Make Longorn the default storage class ####
+<pre>kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'</pre>
 
 
 
