@@ -1,0 +1,12 @@
+[control]
+piserver  ansible_connection=local var_hostname=piserver
+
+[workers]
+pi4node1  ansible_connection=ssh  var_hostname=pi4node1 var_disk=sda var_uuid=dc6a1376-cfee-4f20-a692-5ca550ad2e5b
+pi4node2  ansible_connection=ssh  var_hostname=pi4node2 var_disk=sda var_uuid=cd35cc15-2896-4b66-845d-50dd12e7634b
+pi4node3  ansible_connection=ssh  var_hostname=pi4node3 var_disk=sda var_uuid=3937acd7-5702-4732-803b-4cdc18eeccf4
+pi4node5  ansible_connection=ssh  var_hostname=pi4node5 var_disk=sda var_uuid=cc281300-1b86-45e5-a5ef-9f933370870d
+
+[cube:children]
+control
+workers

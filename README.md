@@ -121,7 +121,27 @@ Adjust '/etc/environment' so that Helm and other programs know where K8s config 
 Then test
 <pre>kubectl get pods -n metallb-system</pre>
 
+### Install Longhorn ###
+<pre>./install_lonhorn_deps.sh</pre>
 
+The volumes to be used are:
+pi4node1 KIOXIA 09FC-5F3D                             28.9G     0% /media/simozzer/KIOXIA
+pi4node2 KIOXIA 09FC-5F3D                              28.9G     0% /media/simozzer/KIOXIA
+pi4node5 KIOXIA 01F5-6177                              28.9G     0% /media/simozzer/KIOXIA
+pi4node3 KIOXIA 17B9-7980                             28.9G     0% /media/simozzer/KIOXIA
+
+
+
+Unmount <pre>ansible workers -b -m shell -a "umount /dev/{{ var_disk }}1"</pre>
+Wipe <pre>ansible workers -b -m shell -a "wipefs -a /dev/{{ var_disk }}"</pre>
+Format <pre>ansible workers -b -m filesystem -a "fstype=ext4 dev=/dev/{{ var_disk }}"</pre>
+
+
+Get blkIds <pre>ansible workers -b -m shell -a "blkid -s UUID -o value /dev/{{ var_disk }}"</pre>
+
+Add ids to hosts
+
+Mount <pre>ansible workers -m ansible.posix.mount -a "path=/storage01 src=UUID={{ var_uuid }} fstype=ext4 state=mounted" -b</pre>
 
 
 
