@@ -9,12 +9,12 @@ without finding a few undocumented steps.
 ## Machines in cluster ##
 | Name | Type | WLAN IP | ETH IP | RAM | STORAGE | BOOT MEDIA | EXTRAS | ROLE |
 | - | - | - | - | - | - | - | - | - |
-| piserver | Pi 5 | 10.10.0.20 | 192.168.1.90 | 8GB | 128GB NVME (USB) | | Hailo8 | Master |
+| piserver | Pi 5 | 10.10.0.20 | 192.168.1.90 | 8GB | 256GB NVME (USB) | | Hailo8 | Worker |
 | pi4node1 | Pi 4b | 10.90.90.91 | 192.168.1.29 | 8GB | 32GB USB3 | 128GB MicroSD | | Worker |
 | pi4node2 | Pi 4b | 10.90.90.92 | 192.168.1.28 | 8GB | 32GB USB3 | 128GB MicroSD | | Worker |
 | pi4node3 | Pi 4b | 10.90.90.93 | 192.168.1.27 | 4GB | 32GB USB3 | 128GB MicroSD | | Worker |
-| pi4node4 | Pi 4b | 10.90.90.99 | 192.168.1.24 | 8GB | 128GB NVME (USB) | | | Backup |
-| pi4node5 | Pi 4b | 10.90.90.98 | 192.168.1.22 | 8GB | 32GB USB3 | 128GB MicroSD | 7 Inch LCD | Worker |
+| pi4node4 | Pi 4b | 10.90.90.99 | 192.168.1.24 | 8GB | 256GB NVME (USB) + 32GB USB | 256GB NVME | | Backup |
+| pi4node5 | Pi 4b | 10.90.90.98 | 192.168.1.22 | 8GB | 32GB USB3 | 128GB MicroSD | 7 Inch LCD | Master |
 
 I'm using the domain 'dev.com' (e.g. the FQDN for pi4node1 is pi4node1.dev.com).
 
@@ -53,10 +53,7 @@ ff02::2         ip6-allrouters
 ### Install K3S on the master node ###
 (piserver)
 
-
-
-export CONTROL_PLANE_IP=10.10.0.20
-export MY_K3S_TOKEN=dsfuyasdfahjskt234524
+<pre>export CONTROL_PLANE_IP=10.90.90.98 && export MY_K3S_TOKEN=dsfuyasdfahjskt234524</pre>
 
 //try this  
 <pre>curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --disable servicelb --token ${MY_K3S_TOKEN} --node-taint CriticalAddonsOnly=true:NoExecute --bind-address ${CONTROL_PLANE_IP} --disable-cloud-controller --disable local-storage<pre>
@@ -64,12 +61,7 @@ export MY_K3S_TOKEN=dsfuyasdfahjskt234524
 Check it is installed <pre>kubectl version</pre>
 
 ### Install K3S on the worker nodes ###
-For this we'll create an ansible job. For this, and other ansible stuff, we'll need a hosts file (I've called mine workers). <pre>
-10.90.90.91
-10.90.90.92
-10.90.90.93
-10.90.90.98
-</pre>
+
 <pre>ansible workers -b -m shell -a "curl -sfL https://get.k3s.io | K3S_URL=https://${CONTROL_PLANE_IP}:6443 K3S_TOKEN=${MY_K3S_TOKEN} sh -"</pre>
 
 When this has finished run <pre>kubectl get nodes</pre>. The output should look something like this:
