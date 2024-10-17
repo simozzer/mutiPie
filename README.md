@@ -152,6 +152,8 @@ After this check everything is running (this might take a while for everything t
 <pre>kubectl apply -f ./longhorn-service.yaml</pre>
 After this open the UI in a browser <pre>http://192.168.1.201/</pre>
 
+##### TODO:: Add fstab entries on each node #####
+
 
 ##### TROUBLE DELETING LONGHORN #####
 Attempt1: <pre>for crd in $(kubectl get crd -o name | grep longhorn); do kubectl patch $crd -p '{"metadata":{"finalizers":[]}}' --type=merge; done;</pre>
@@ -165,8 +167,24 @@ Attempt2 WORKED: <pre>for crd in $(kubectl get crd -o name | grep longhorn); do 
 <pre>cd docker-registry</pre>
 <pre>kubectl apply -f pvc.yml && kubectl apply -f deployment.yml && kubectl apply -f service.yml</pre>
 
+## Create Docker Registry ##
+<pre>kubectl create namespace redis-server</pre>
+<pre>cd redis-server</pre>
+<pre>kubectl apply -f pvc.yml && kubectl apply -f deployment.yml && kubectl apply -f service.yml</pre>
+
+## Install Portainer ##
+<pre>cd portainer</pre>
+<pre>./install_portainer.sh</pre>
+<pre>kubectl apply -f svc.yml</pre>
 
 
+## Install ArgoCD ##
+(NOT WORKING YET)
+<pre>cd argocd</pre>
+<pre>kubectl create namespace argocd</pre>
+<pre>kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml</pre>
+<pre>kubectl patch service argocd-server -n argocd --patch '{ "spec": { "type": "LoadBalancer", "loadBalancerIP": "192.168.1.208" } }'</pre>
+Get password: <pre>kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo</pre>
 
 # mutiPie
 bits and pieces for messing with raspberry Pis
