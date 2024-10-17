@@ -127,24 +127,23 @@ pi4node5 KIOXIA 01F5-6177                              28.9G     0% /media/simoz
 pi4node3 KIOXIA 17B9-7980                             28.9G     0% /media/simozzer/KIOXIA
 
 
-
-Unmount <pre>ansible workers -b -m shell -a "umount /dev/{{ var_disk }}1"</pre>
-Wipe <pre>ansible workers -b -m shell -a "wipefs -a /dev/{{ var_disk }}"</pre>
-Format <pre>ansible workers -b -m filesystem -a "fstype=ext4 dev=/dev/{{ var_disk }}"</pre>
-
-
-Get blkIds <pre>ansible workers -b -m shell -a "blkid -s UUID -o value /dev/{{ var_disk }}"</pre>
+THE NEXT 4 LINES ARE TO PREPARE THE VOLUMES (Shouldn't need to do this on rebuild)
+Unmount <pre>ansible workers_usb -b -m shell -a "umount /dev/{{ var_disk }}"</pre>
+Wipe <pre>ansible workers_usb -b -m shell -a "wipefs -a /dev/{{ var_disk }}"</pre>
+Format <pre>ansible workers_usb -b -m filesystem -a "fstype=ext4 dev=/dev/{{ var_disk }}"</pre>
+Get blkIds <pre>ansible workers_usb -b -m shell -a "blkid -s UUID -o value /dev/{{ var_disk }}"</pre>
 
 Add ids to hosts
 
-Mount <pre>ansible workers -m ansible.posix.mount -a "path=/storage01 src=UUID={{ var_uuid }} fstype=ext4 state=mounted" -b</pre>
+Mount <pre>ansible workers_usb -m ansible.posix.mount -a "path=/storage01 src=UUID={{ var_uuid }} fstype=ext4 state=mounted" -b</pre>
+<pre>ansible workers_nvme -m ansible.posix.mount -a "path=/storage02 src=UUID={{ var_uuid }} fstype=ext4 state=mounted" -b</pre>
 
 ### Install Longhorn ##
 <pre>./install_longhorn.sh</pre> 
 After this check everything is running (this might take a while for everything to enter the 'running' state)
 <pre>kubectl -n longhorn-system get pods</pre>
 
-#### Setup service for metallb UI ####
+#### Setup service for longhorn UI ####
 <pre>kubectl apply -f ./longhorn-service.yaml</pre>
 After this open the UI in a browser <pre>http://192.168.1.201/</pre>
 
