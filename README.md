@@ -152,7 +152,7 @@ After this check everything is running (this might take a while for everything t
 <pre>kubectl apply -f ./longhorn-service.yaml</pre>
 After this open the UI in a browser <pre>http://192.168.1.201/</pre>
 
-##### TODO:: Add fstab entries on each node #####
+##### Remember!!! Add fstab entries on each node #####
 
 
 ##### TROUBLE DELETING LONGHORN #####
