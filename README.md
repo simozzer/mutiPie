@@ -58,7 +58,7 @@ ff02::2         ip6-allrouters
 <pre>export CONTROL_PLANE_IP=10.90.90.98 && export MY_K3S_TOKEN=dsfuyasdfahjskt234524</pre>
 
 //try this  
-<pre>curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --disable servicelb --token ${MY_K3S_TOKEN} --node-taint CriticalAddonsOnly=true:NoExecute --bind-address ${CONTROL_PLANE_IP} --tls-san ${CONTROL_PLANE_IP} --tls-san 10.90.90.91 --tls-san 10.90.90.92 --tls-san 10.90.90.93 --tls-san 10.90.90.99 --tls-san 10.10.0.20 --disable-cloud-controller --disable local-storage<pre>
+<pre>curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --disable servicelb --token ${MY_K3S_TOKEN} --node-taint CriticalAddonsOnly=true:NoExecute --bind-address ${CONTROL_PLANE_IP} --tls-san ${CONTROL_PLANE_IP} --kubelet-insecure-tls --disable-cloud-controller --disable local-storage<pre>
 
 Check it is installed <pre>kubectl version</pre>
 
