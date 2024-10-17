@@ -66,6 +66,11 @@ Check it is installed <pre>kubectl version</pre>
 
 <pre>ansible workers -b -m shell -a "curl -sfL https://get.k3s.io | K3S_URL=https://${CONTROL_PLANE_IP}:6443 K3S_TOKEN=${MY_K3S_TOKEN} sh -"</pre>
 
+After this ensure that each node is bound to the correct adapter: Edit '/etc/systemd/system/k3s-agent.service' and add '--node-ip x.x.x.x' to 'ExecStart'.
+
+
+
+
 When this has finished run <pre>kubectl get nodes</pre>. The output should look something like this:
 <pre>pi4node1.dev.com   Ready    <none>                      91s     v1.30.5+k3s1
 pi4node2.dev.com   Ready    <none>                      84s     v1.30.5+k3s1
@@ -118,7 +123,7 @@ Then test
 <pre>kubectl get pods -n metallb-system</pre>
 
 ### Install Longhorn ###
-<pre>./install_lonhorn_deps.sh</pre>
+<pre>./install_longhorn_deps.sh</pre>
 
 The volumes to be used are:
 pi4node1 KIOXIA 09FC-5F3D                             28.9G     0% /media/simozzer/KIOXIA
@@ -155,11 +160,11 @@ Attempt2 WORKED: <pre>for crd in $(kubectl get crd -o name | grep longhorn); do 
 #### Make Longorn the default storage class ####
 <pre>kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'</pre>
 
-### Install Docker ###
-SKIP THIS... WILL USE pi4node4 FOR BUIDLING DOCKER IMAGES, WHICH CAN THE BE PUSHED TO OUR DOCKER REGISTRY
+## Create Docker Registry ##
+<pre>kubectl create namespace docker-registry</pre>
+<pre>cd docker-registry</pre>
+<pre>kubectl apply -f pvc.yml && kubectl apply -f deployment.yml && kubectl apply -f service.yml</pre>
 
-### Reconfigure pi4node4 ###
-pi4node4 has a nice fast USB NVME drive. I used a rescue disk to shrink the base partition and created a 100GB volume to add to the cluster.
 
 
 
