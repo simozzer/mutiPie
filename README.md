@@ -193,6 +193,7 @@ Get password: <pre>kubectl -n argocd get secret argocd-initial-admin-secret -o j
 <pre>sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-arm64</pre>
 <pre>sudo chmod +x /usr/local/bin/argocd</pre>
 <pre>argocd login 192.168.1.208</pre> (using password from above)
+Change password: <pre>argocd account update-password --account admin</pre>
 
 AT THIS POINT ARGOCD IS INSTALLED.. need to read up more to find out how to use it!!!????
 
