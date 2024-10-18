@@ -1,5 +1,14 @@
 # Restarting building a K3s cluster on some Raspberry Pis #
 
+### LINKS ###
+System is still fairly unstable and may require <pre>sudo systemctl restart k3s</pre>
+
+* (Portainer)[http://192.168.1.203:9000/]
+* (Longhorn)[http://192.168.1.201/]
+* (ArgoCD)[https://192.168.1.208/]
+* (Grafana)[http://192.168.1.206:3000/]
+* (Prometheus)[http://192.168.1.205:9090]
+
 (Most information is from https://rpi4cluster.com/k3s-kubernetes-install/)
 
 I'm starting from a point where I've already built up and tore down this cluster many times, so there will be packages that
@@ -67,9 +76,6 @@ Check it is installed <pre>kubectl version</pre>
 <pre>ansible workers -b -m shell -a "curl -sfL https://get.k3s.io | K3S_URL=https://${CONTROL_PLANE_IP}:6443 K3S_TOKEN=${MY_K3S_TOKEN} sh -"</pre>
 
 After this ensure that each node is bound to the correct adapter: Edit '/etc/systemd/system/k3s-agent.service' and add '--node-ip x.x.x.x' to 'ExecStart'.
-
-
-
 
 When this has finished run <pre>kubectl get nodes</pre>. The output should look something like this:
 <pre>pi4node1.dev.com   Ready    <none>                      91s     v1.30.5+k3s1
