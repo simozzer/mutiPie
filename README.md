@@ -179,13 +179,35 @@ Attempt2 WORKED: <pre>for crd in $(kubectl get crd -o name | grep longhorn); do 
 
 
 ## Install ArgoCD ##
-(NOT WORKING YET)
 <pre>cd argocd</pre>
 <pre>kubectl create namespace argocd</pre>
 <pre>kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml</pre>
 <pre>kubectl patch service argocd-server -n argocd --patch '{ "spec": { "type": "LoadBalancer", "loadBalancerIP": "192.168.1.208" } }'</pre>
 Get password: <pre>kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo</pre>
+<pre>sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-arm64</pre>
+<pre>sudo chmod +x /usr/local/bin/argocd</pre>
+<pre>argocd login 192.168.1.208</pre> (using password from above)
 
+AT THIS POINT ARGOCD IS INSTALLED.. need to read up more to find out how to use it!!!????
+
+## Monitoring ##
+<pre>cd prometheus-operator</pre>
+<pre>kubectl create namespace monitoring</pre>
+<pre>wget https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/bundle.yaml</pre>
+<pre>sed -i 's/namespace: default/namespace: monitoring/g' bundle.yaml</pre>
+<pre>kubectl apply --server-side -f bundle.yaml</pre>
+<pre>kubectl apply -f ./longhorn-service-monitor.yml</pre>
+<pre>cd .. && kubectl apply -f prometheus-operator</pre>
+<pre>cd kube-state-metrics</pre>
+<pre>cd .. && kubectl apply -f kube-state-metrics</pre>
+<pre>cd .. && kubectl apply -f kubelet</pre>
+<pre>kubectl apply -f monitoring</pre>
+
+
+
+
+
+root@control01:~/argo_cd# chmod +x /usr/local/bin/argocd
 # mutiPie
 bits and pieces for messing with raspberry Pis
 
