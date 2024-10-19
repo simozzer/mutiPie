@@ -33,6 +33,8 @@ I've created an SSH key on 'piserver' and copied it to each of the other nodes i
 
 I've edited /etc/hosts on piserver: (Note that I've commented out the WLAN IPs because I want all the machines in the cluster to use Ethernet and not Wireless - I may have to fiddle with dhcppd.conf to do this properly). 
 
+Edited /boot/firmware/cmdline.txt to contain 'cgroup_memory=1 cgroup_enable=memory group_enable=cpuset'
+
 I want to keep 'piserver' accessible by machines on my network that are not in the cluster but all the other nodes in the cluster should remain hidden.
 
 
@@ -68,6 +70,8 @@ ff02::2         ip6-allrouters
 
 //try this  
 <pre>curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --disable servicelb --token ${MY_K3S_TOKEN} --node-taint CriticalAddonsOnly=true:NoExecute --bind-address ${CONTROL_PLANE_IP} --tls-san ${CONTROL_PLANE_IP} --node-ip ${CONTROL_PLANE_IP} --disable-cloud-controller --disable local-storage<pre>
+Try again without node taint
+<pre>curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --disable servicelb --token ${MY_K3S_TOKEN} --bind-address ${CONTROL_PLANE_IP} --tls-san ${CONTROL_PLANE_IP} --node-ip ${CONTROL_PLANE_IP} --disable-cloud-controller --disable local-storage<pre>
 
 Check it is installed <pre>kubectl version</pre>
 
@@ -118,7 +122,7 @@ Adjust '/etc/environment' so that Helm and other programs know where K8s config 
 This step failed first time because the metrics API was not available.Check if you can run <pre>kubectl top nodes</pre>. If you can't then reboot the control node and try again.
 
 ## PROBLEMS WITH METRICS SERVER NOT LAUNCHING!!! ##
-The issue I had with the metrics-server was that it was binding to the wong network adapter.  I was able to fix this by editing '/etc/systemd/system/k3s.service' and adding '--node-ip 10.90.90.98' to the ExecStart. Then restart k3s <pre>sudo systemctl daemon-reload && sudo systemctl restart k3s</pre>. Since seeing this i'ce added node-ip to the install line.
+The issue I had with the metrics-server was that it was binding to the wong network adapter.  I was able to fix this by editing '/etc/systemd/system/k3s.service' and adding '--node-ip 10.90.90.98' to the ExecStart. Then restart k3s <pre>sudo systemctl daemon-reload && sudo systemctl restart k3s</pre>. Since seeing this i've added node-ip to the install line. (Node ip also needs adding to all the worker nodes in /etc/systemd/system/k3s-agent.service)
 
 
 <pre>./install_metallb.sh</pre>
@@ -209,6 +213,15 @@ AT THIS POINT ARGOCD IS INSTALLED.. need to read up more to find out how to use 
 <pre>cd .. && kubectl apply -f kube-state-metrics</pre>
 <pre>cd .. && kubectl apply -f kubelet</pre>
 <pre>kubectl apply -f monitoring</pre>
+
+
+# MySQL #
+These are my own steps:
+
+<pre>kubectl create namespace mysql</pre>
+<pre>kubectl apply -f ./pvc.yml</pre>
+
+
 
 
 
