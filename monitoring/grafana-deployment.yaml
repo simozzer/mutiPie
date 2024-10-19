@@ -48,3 +48,4 @@ spec:
         - name: grafana-storage
           persistentVolumeClaim:
             claimName: longhorn-grafana-pvc
+            

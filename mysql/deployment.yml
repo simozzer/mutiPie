@@ -22,11 +22,13 @@ spec:
             - name: mysql
               containerPort: 3306
           volumeMounts:
+            #TODO:: using configset
             - name: mysql-config-volume
               mountPath: /etc/mysql/mysql.conf.d/my-custom.cnf
               subPath: my-custom.cnf
             - name: mysql-storage
               mountPath: /var/lib/mysql
+              readOnly: false
           env:
             - name: MYSQL_ROOT_PASSWORD
               value: "secret"
@@ -42,4 +44,3 @@ spec:
         - name: mysql-storage
           persistentVolumeClaim:
             claimName: mysql-pvc
-

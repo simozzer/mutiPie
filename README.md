@@ -29,17 +29,17 @@ I'm using the domain 'dev.com' (e.g. the FQDN for pi4node1 is pi4node1.dev.com).
 
 The machines in this cluster are all running Raspberry Pi OS. Only the 'Master' node has a graphical desktop, the rest are just running a server edition with no desktop.
 
-I've created an SSH key on 'piserver' and copied it to each of the other nodes in the cluster so that I can SSH into them.
+I've created an SSH key on the 'master' node (pi4node5) and copied it to each of the other nodes in the cluster so that I can SSH into them.
 
-I've edited /etc/hosts on piserver: (Note that I've commented out the WLAN IPs because I want all the machines in the cluster to use Ethernet and not Wireless - I may have to fiddle with dhcppd.conf to do this properly). 
+I've edited /etc/hosts on pi4node5: (Note that I've commented out the WLAN IPs because I want all the machines in the cluster to use Ethernet and not Wireless - I may have to fiddle with dhcppd.conf to do this properly). 
 
 Edited /boot/firmware/cmdline.txt to contain 'cgroup_memory=1 cgroup_enable=memory group_enable=cpuset'
 
-I want to keep 'piserver' accessible by machines on my network that are not in the cluster but all the other nodes in the cluster should remain hidden.
+I want to keep 'pi4node5' accessible by machines on my network (those that are not in the cluster) but all the other nodes in the cluster should remain hidden.
 
 
 
-<pre>127.0.0.1       localhost piserver piserver.dev.com
+<pre>127.0.0.1       localhost
 ::1             localhost ip6-localhost ip6-loopback
 ff02::1         ip6-allnodes
 ff02::2         ip6-allrouters
