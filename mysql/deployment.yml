@@ -22,7 +22,6 @@ spec:
             - name: mysql
               containerPort: 3306
           volumeMounts:
-            #TODO:: using configset
             - name: mysql-config-volume
               mountPath: /etc/mysql/mysql.conf.d/my-custom.cnf
               subPath: my-custom.cnf
