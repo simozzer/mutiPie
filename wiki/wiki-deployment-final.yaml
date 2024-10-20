@@ -1,0 +1,62 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  #name and label for deployment
+  name: wikiserver
+  labels:
+    app: wikiserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      # re-use deployment label
+      app: wikiserver
+  template:
+    metadata:
+      labels:
+        #re-use deployment label
+        app: wikiserver
+    spec:
+      containers:
+        #re-use deployment label
+        - name: wikiserver
+          # name of image to use 
+          image: mediawiki
+          ports:
+            #name of port will be re-used in service and ingress 
+            - name: wiki
+              containerPort: 80
+          env:
+            # Hostname of the MySQL server
+            # (As named in MySQL deployment)
+            - name: MYSQL_DATABASE
+              # use metallb address assigned to mysql 
+              value: 192.168.1.210
+            # Port of the MySQL server
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: wikimedia-db-secrets
+                  key: username
+            # Root password for MySQL
+            # (As added in MySQL deployment)
+            - name: MYSQL_PASSWORD
+              #valueFrom: "wiki"
+              valueFrom:
+                secretKeyRef:
+                  name: wikimedia-db-secrets
+                  key: password
+          # setup a link for the LocalSettings file
+          volumeMounts:
+            - name: mediawiki-config
+              mountPath: ${HOME}
+              subPath: LocalSettings.php
+      volumes:
+        - name: mediawiki-config
+          configMap:
+            name: mediawiki-settings
+            items:
+            - key: main-config
+              path: LocalSettings.php
+
+
