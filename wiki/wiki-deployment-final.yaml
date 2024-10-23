@@ -47,10 +47,14 @@ spec:
                   name: wikimedia-db-secrets
                   key: password
           # setup a link for the LocalSettings file
-          volumeMounts:
+          volumeMounts:        
             - name: mediawiki-config
               mountPath: ${HOME}
               subPath: LocalSettings.php
+          volumeMounts:
+            - name: mediawiki-config
+              mountPath: /var/www/html/LocalSettings.php
+              subPath: LocalSettings.php              
       volumes:
         - name: mediawiki-config
           configMap:

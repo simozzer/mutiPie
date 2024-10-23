@@ -8,6 +8,8 @@ System is still fairly unstable and may require <pre>sudo systemctl restart k3s<
 * (ArgoCD)[https://192.168.1.208/]
 * (Grafana)[http://192.168.1.206:3000/]
 * (Prometheus)[http://192.168.1.205:9090]
+* (MySQL)[http://192.168.1.210:3306]
+* (PhpMyAdmin)[http://192.168kubect.1.213]
 
 (Most information is from https://rpi4cluster.com/k3s-kubernetes-install/)
 
@@ -62,24 +64,26 @@ ff02::2         ip6-allrouters
 10.10.0.20      piserver piserver.dev.com
 #192.168.1.90    piserver piserver.dev.com
 </pre>
-
 ### Install K3S on the master node ###
 (piserver)
 
 <pre>export CONTROL_PLANE_IP=10.90.90.98 && export MY_K3S_TOKEN=dsfuyasdfahjskt234524</pre>
 
-//try this  
-<pre>curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --disable servicelb --token ${MY_K3S_TOKEN} --node-taint CriticalAddonsOnly=true:NoExecute --bind-address ${CONTROL_PLANE_IP} --tls-san ${CONTROL_PLANE_IP} --node-ip ${CONTROL_PLANE_IP} --disable-cloud-controller --disable local-storage<pre>
-Try again without node taint
-<pre>curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --disable servicelb --token ${MY_K3S_TOKEN} --bind-address ${CONTROL_PLANE_IP} --tls-san ${CONTROL_PLANE_IP} --node-ip ${CONTROL_PLANE_IP} --disable-cloud-controller --disable local-storage<pre>
+
+~~curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --disable servicelb --token ${MY_K3S_TOKEN} --node-taint CriticalAddonsOnly=true:NoExecute --bind-address ${CONTROL_PLANE_IP} --tls-san ${CONTROL_PLANE_IP} --node-ip ${CONTROL_PLANE_IP} --disable-cloud-controller --disable local-storage<~~
+Remove node-taint due to error messages
+<pre>
+curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --disable servicelb --token ${MY_K3S_TOKEN} --node-taint CriticalAddonsOnly=true:NoExecute --bind-address ${CONTROL_PLANE_IP} --tls-san ${CONTROL_PLANE_IP} --node-ip ${CONTROL_PLANE_IP} --external-ip 192.168.1.22  --disable-cloud-controller --disable local-storage
+</pre>
 
 Check it is installed <pre>kubectl version</pre>
 
 ### Install K3S on the worker nodes ###
 
-<pre>ansible workers -b -m shell -a "curl -sfL https://get.k3s.io | K3S_URL=https://${CONTROL_PLANE_IP}:6443 K3S_TOKEN=${MY_K3S_TOKEN} sh -"</pre>
+~~ansible workers -b -m shell -a "curl -sfL https://get.k3s.io | K3S_URL=https://${CONTROL_PLANE_IP}:6443 K3S_TOKEN=${MY_K3S_TOKEN} sh -"~~
+Use the following to assign the ethernet adapter ip address to the node ip
+<pre>ansible workers -b -m shell -a "curl -sfL https://get.k3s.io | K3S_URL=https://${CONTROL_PLANE_IP}:6443 K3S_TOKEN=${MY_K3S_TOKEN} sh -s - --node-ip {{ var_ip_eth  }}"</pre>
 
-After this ensure that each node is bound to the correct adapter: Edit '/etc/systemd/system/k3s-agent.service' and add '--node-ip x.x.x.x' to 'ExecStart'.
 
 When this has finished run <pre>kubectl get nodes</pre>. The output should look something like this:
 <pre>pi4node1.dev.com   Ready    <none>                      91s     v1.30.5+k3s1
@@ -135,34 +139,34 @@ Then test
 ### Install Longhorn ###
 <pre>./install_longhorn_deps.sh</pre>
 
-The volumes to be used are:
-pi4node1 KIOXIA 09FC-5F3D                             28.9G     0% /media/simozzer/KIOXIA
-pi4node2 KIOXIA 09FC-5F3D                              28.9G     0% /media/simozzer/KIOXIA
-pi4node5 KIOXIA 01F5-6177                              28.9G     0% /media/simozzer/KIOXIA
-pi4node3 KIOXIA 17B9-7980                             28.9G     0% /media/simozzer/KIOXIA
 
-
-THE NEXT 4 LINES ARE TO PREPARE THE VOLUMES (Shouldn't need to do this on rebuild)
+THE NEXT 6 LINES ARE TO PREPARE THE VOLUMES (Shouldn't need to do this on rebuild)
 Unmount <pre>ansible workers_usb -b -m shell -a "umount /dev/{{ var_disk }}"</pre>
 Wipe <pre>ansible workers_usb -b -m shell -a "wipefs -a /dev/{{ var_disk }}"</pre>
 Format <pre>ansible workers_usb -b -m filesystem -a "fstype=ext4 dev=/dev/{{ var_disk }}"</pre>
 Get blkIds <pre>ansible workers_usb -b -m shell -a "blkid -s UUID -o value /dev/{{ var_disk }}"</pre>
-
 Add ids to hosts
-
 Mount <pre>ansible workers_usb -m ansible.posix.mount -a "path=/storage01 src=UUID={{ var_uuid }} fstype=ext4 state=mounted" -b</pre>
 <pre>ansible workers_nvme -m ansible.posix.mount -a "path=/storage02 src=UUID={{ var_uuid }} fstype=ext4 state=mounted" -b</pre>
 
+TODO: Add instructions on cluster rebuild for storage
+
 ### Install Longhorn ##
 <pre>./install_longhorn.sh</pre> 
-After this check everything is running (this might take a while for everything to enter the 'running' state)
+After this check everything is running (this might take a while for everything to enter the 'running' state - 9 minutes on my cluster!!)
 <pre>kubectl -n longhorn-system get pods</pre>
 
 #### Setup service for longhorn UI ####
 <pre>kubectl apply -f ./longhorn-service.yaml</pre>
 After this open the UI in a browser <pre>http://192.168.1.201/</pre>
 
+At this point the setting of the extenal IP for service/longhorn-ingress-lb was stuck at 'pending'. The following resolved this.
+<pre>kubectl patch svc longhorn-ingress-lb  -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.1.201"]}}' -n longhorn-system</pre>
+same thing happens with portainer:
+<pre>kubectl patch svc portainer -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.1.203"]}}' -n portainer</pre>
 ##### Remember!!! Add fstab entries on each node #####
+TODOTODOTODOTODOTODOTODOTODO -tag nodes
+
 
 
 ##### TROUBLE DELETING LONGHORN #####
@@ -177,7 +181,7 @@ Attempt2 WORKED: <pre>for crd in $(kubectl get crd -o name | grep longhorn); do 
 <pre>cd docker-registry</pre>
 <pre>kubectl apply -f pvc.yml && kubectl apply -f deployment.yml && kubectl apply -f service.yml</pre>
 
-## Create Docker Registry ##
+## Create Redis Server ##
 <pre>kubectl create namespace redis-server</pre>
 <pre>cd redis-server</pre>
 <pre>kubectl apply -f pvc.yml && kubectl apply -f deployment.yml && kubectl apply -f service.yml</pre>
@@ -186,9 +190,10 @@ Attempt2 WORKED: <pre>for crd in $(kubectl get crd -o name | grep longhorn); do 
 <pre>cd portainer</pre>
 <pre>./install_portainer.sh</pre>
 <pre>kubectl apply -f svc.yml</pre>
+If not assigned an external IP <pre>kubectl patch svc portainer -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.1.203"]}}' -n portainer</pre>
 
 
-## Install ArgoCD ##
+## Install ArgoCD (Not installed) ##
 <pre>cd argocd</pre>
 <pre>kubectl create namespace argocd</pre>
 <pre>kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml</pre>
@@ -201,7 +206,7 @@ Change password: <pre>argocd account update-password --account admin</pre>
 
 AT THIS POINT ARGOCD IS INSTALLED.. need to read up more to find out how to use it!!!????
 
-## Monitoring ##
+## Monitoring (NOT INSTALLED) ##
 <pre>cd prometheus-operator</pre>
 <pre>kubectl create namespace monitoring</pre>
 <pre>wget https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/bundle.yaml</pre>
@@ -216,11 +221,41 @@ AT THIS POINT ARGOCD IS INSTALLED.. need to read up more to find out how to use 
 
 
 # MySQL #
-These are my own steps:
+(Adapted from https://zaher.dev/blog/mysql-on-k3s-cluster)
 
-<pre>kubectl create namespace mysql</pre>
+<pre>kubectl create namespace mysql-server</pre>
 <pre>kubectl apply -f ./pvc.yml</pre>
+<pre>kubectl create configmap mysql-config --from-file=main-config=my-custom.cnf -n mysql-server<pre>
+<pre>kubectl apply -f ./deployment.yml</pre>
+<pre>kubectl apply -f ./service.yml</pre>
 
+
+
+
+# Wiki #
+Create secrets:
+Encode username
+<pre>echo 'somevalueorother' | base64</pre>
+Encode password
+<pre>echo 'someothervalue' | base64</pre>
+
+Create secrets file.  Use values from above for username and password
+<pre>nano wikimedia-db-secrets.yml</pre>
+<pre>apiVersion: v1
+kind: Secret
+metadata:
+  name: wikimedia-db-secrets
+type: Opaque
+data:
+  username: fdgdf==
+  password: d2lrhaQ==
+</pre>
+<pre>kubectl apply -f ./wikimedia-db-secrets</pre>
+<pre>kubectl apply -f wiki-deployment.yaml</pre>
+<pre>kubectl apply -f wiki-service.yaml</pre>
+Open 'http://192.168.1.212' in a browser, complete the questionaire and once complete download 'LocalSettings.php'.
+Using Portainer open ConfigMags & Secrets and create a with the name 'wikimedia-secrets'. Add a value named 'main-config' and paste in the contents of 'LocalSettings.php'.
+<pre>kubectl apply -f wiki-deployment-final.yaml</pre>
 
 
 

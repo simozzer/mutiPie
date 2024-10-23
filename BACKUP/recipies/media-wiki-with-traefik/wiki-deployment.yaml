@@ -30,8 +30,8 @@ spec:
             # Hostname of the MySQL server
             # (As named in MySQL deployment)
             - name: MYSQL_DATABASE
-              # use ethernet address (not wlan)
-              value: 10.10.0.20
+              # use metallb address assigned to mysql 
+              value: 192.168.1.210
             # Port of the MySQL server
             - name: MYSQL_USER
               valueFrom:

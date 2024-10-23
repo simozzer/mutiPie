@@ -1,0 +1,7 @@
+---
+- hosts: workers
+  gather_facts: no
+  tasks:
+    - name: stop_workers
+      command: systemctl stop k3s-agent
+      become: true

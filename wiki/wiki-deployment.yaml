@@ -3,6 +3,7 @@ apiVersion: apps/v1
 metadata:
   #name and label for deployment
   name: wikiserver
+  namespace: wikiserver
   labels:
     app: wikiserver
 spec:
@@ -23,7 +24,7 @@ spec:
           # name of image to use 
           image: mediawiki
           ports:
-            #name of port will be re-used in service and ingress 
+            #name of port will be re-used in service and ingress W
             - name: wiki
               containerPort: 80
           env:

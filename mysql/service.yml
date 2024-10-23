@@ -7,9 +7,9 @@ spec:
   selector:
     app: mysql
   type: LoadBalancer
+  loadBalancerIP: 192.168.1.210
   ports:
   - name: mysql-port
     port: 3306
     targetPort: 3306
-  loadBalancerIP: 192.168.1.210
 
