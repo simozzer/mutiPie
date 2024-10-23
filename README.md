@@ -9,7 +9,8 @@ System is still fairly unstable and may require <pre>sudo systemctl restart k3s<
 * (Grafana)[http://192.168.1.206:3000/]
 * (Prometheus)[http://192.168.1.205:9090]
 * (MySQL)[http://192.168.1.210:3306]
-* (PhpMyAdmin)[http://192.168kubect.1.213]
+* (PhpMyAdmin)[http://192.168.1.213]
+* (Prometheus-external)[http://192.168.1.217:9090]
 
 (Most information is from https://rpi4cluster.com/k3s-kubernetes-install/)
 
