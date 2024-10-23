@@ -58,9 +58,9 @@ spec:
       volumes:
         - name: mediawiki-config
           configMap:
-            name: mediawiki-settings
+            name: wiki-configmap
             items:
-            - key: main-config
+            - key: settings
               path: LocalSettings.php
 
 
