@@ -11,3 +11,4 @@ spec:
   selector:
     prometheus: prometheus-persistant
   sessionAffinity: ClientIP
+  loadBalancerIP: 192.168.1.205  

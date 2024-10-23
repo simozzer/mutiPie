@@ -1,6 +1,6 @@
 # Restarting building a K3s cluster on some Raspberry Pis #
 
-### LINKS ###
+## LINKS ##
 System is still fairly unstable and may require <pre>sudo systemctl restart k3s</pre>
 
 * (Portainer)[http://192.168.1.203:9000/]
@@ -8,9 +8,11 @@ System is still fairly unstable and may require <pre>sudo systemctl restart k3s<
 * (ArgoCD)[https://192.168.1.208/]
 * (Grafana)[http://192.168.1.206:3000/]
 * (Prometheus)[http://192.168.1.205:9090]
-* (MySQL)[http://192.168.1.210:3306]
+* (MySQL) 192.168.1.210:3306
 * (PhpMyAdmin)[http://192.168.1.213]
 * (Prometheus-external)[http://192.168.1.217:9090]
+* (Redis-Server) 192.168.1.204:6379
+* (Docker-Registry) 192.168.1.207:5000
 
 (Most information is from https://rpi4cluster.com/k3s-kubernetes-install/)
 
@@ -41,7 +43,7 @@ Edited /boot/firmware/cmdline.txt to contain 'cgroup_memory=1 cgroup_enable=memo
 I want to keep 'pi4node5' accessible by machines on my network (those that are not in the cluster) but all the other nodes in the cluster should remain hidden.
 
 
-
+### /etc/hosts ###
 <pre>127.0.0.1       localhost
 ::1             localhost ip6-localhost ip6-loopback
 ff02::1         ip6-allnodes
@@ -71,11 +73,7 @@ ff02::2         ip6-allrouters
 <pre>export CONTROL_PLANE_IP=10.90.90.98 && export MY_K3S_TOKEN=dsfuyasdfahjskt234524</pre>
 
 
-~~curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --disable servicelb --token ${MY_K3S_TOKEN} --node-taint CriticalAddonsOnly=true:NoExecute --bind-address ${CONTROL_PLANE_IP} --tls-san ${CONTROL_PLANE_IP} --node-ip ${CONTROL_PLANE_IP} --disable-cloud-controller --disable local-storage<~~
-Remove node-taint due to error messages
-<pre>
-curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --disable servicelb --token ${MY_K3S_TOKEN} --node-taint CriticalAddonsOnly=true:NoExecute --bind-address ${CONTROL_PLANE_IP} --tls-san ${CONTROL_PLANE_IP} --node-ip ${CONTROL_PLANE_IP} --external-ip 192.168.1.22  --disable-cloud-controller --disable local-storage
-</pre>
+<pre>curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --disable servicelb --token ${MY_K3S_TOKEN} --node-taint CriticalAddonsOnly=true:NoExecute --bind-address ${CONTROL_PLANE_IP} --tls-san ${CONTROL_PLANE_IP} --node-ip ${CONTROL_PLANE_IP} --disable-cloud-controller --disable local-storage</pre>
 
 Check it is installed <pre>kubectl version</pre>
 
@@ -85,32 +83,12 @@ Check it is installed <pre>kubectl version</pre>
 Use the following to assign the ethernet adapter ip address to the node ip
 <pre>ansible workers -b -m shell -a "curl -sfL https://get.k3s.io | K3S_URL=https://${CONTROL_PLANE_IP}:6443 K3S_TOKEN=${MY_K3S_TOKEN} sh -s - --node-ip {{ var_ip_eth  }}"</pre>
 
-
-When this has finished run <pre>kubectl get nodes</pre>. The output should look something like this:
-<pre>pi4node1.dev.com   Ready    <none>                      91s     v1.30.5+k3s1
-pi4node2.dev.com   Ready    <none>                      84s     v1.30.5+k3s1
-pi4node3.dev.com   Ready    <none>                      94s     v1.30.5+k3s1
-pi4node5.dev.com   Ready    <none>                      53s     v1.30.5+k3s1
-piserver.dev.com   Ready    control-plane,etcd,master   4m58s   v1.30.5+k3s1</pre>
-
-Note that most of the nodes have no Role. Create a file with the names of the workers (worker_names)<pre>
-pi4node1.dev.com
-pi4node2.dev.com
-pi4node3.dev.com
-pi4node5.dev.com
-</pre>
-Run this bash line to assign the label nodes:
+### Label the worker nodes ###
 <pre>(readarray -t ARRAY < worker_names; IFS=','; kubectl label nodes "${ARRAY[@]}" kubernetes.io/role=worker)</pre>
-Check that the node labels have been applied
-<pre>kubectl get nodes</pre>
-<pre>pi4node1.dev.com   Ready    worker                      43m    v1.30.5+k3s1
-pi4node2.dev.com   Ready    worker                      33m    v1.30.5+k3s1
-pi4node3.dev.com   Ready    worker                      33m    v1.30.5+k3s1
-pi4node5.dev.com   Ready    worker                      32m    v1.30.5+k3s1
-piserver.dev.com   Ready    control-plane,etcd,master   105m   v1.30.5+k3s1</pre>
 Add another custom label:
 <pre>(readarray -t ARRAY < worker_names; IFS=','; kubectl label nodes "${ARRAY[@]}" node-type=worker)</pre>
 
+### Further configuration ###
 Adjust '/etc/environment' so that Helm and other programs know where K8s config is found.
 <pre>ansible cube -b -m lineinfile -a "path='/etc/environment' line='KUBECONFIG=/etc/rancher/k3s/k3s.yaml'"</pre>
 
@@ -207,7 +185,7 @@ Change password: <pre>argocd account update-password --account admin</pre>
 
 AT THIS POINT ARGOCD IS INSTALLED.. need to read up more to find out how to use it!!!????
 
-## Monitoring (NOT INSTALLED) ##
+# Monitoring #
 <pre>cd prometheus-operator</pre>
 <pre>kubectl create namespace monitoring</pre>
 <pre>wget https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/bundle.yaml</pre>
@@ -220,6 +198,10 @@ AT THIS POINT ARGOCD IS INSTALLED.. need to read up more to find out how to use 
 <pre>cd .. && kubectl apply -f kubelet</pre>
 <pre>kubectl apply -f monitoring</pre>
 
+## install a test dashboard in grafana ##
+In grafana load the json from 'starter_dashboard.json'.
+
+
 
 # MySQL #
 (Adapted from https://zaher.dev/blog/mysql-on-k3s-cluster)
@@ -229,6 +211,14 @@ AT THIS POINT ARGOCD IS INSTALLED.. need to read up more to find out how to use 
 <pre>kubectl create configmap mysql-config --from-file=main-config=my-custom.cnf -n mysql-server<pre>
 <pre>kubectl apply -f ./deployment.yml</pre>
 <pre>kubectl apply -f ./service.yml</pre>
+
+# phpMyAdmin #
+<pre>kubectl apply -f deployment.yml</pre>
+<pre>kubectl apply -f service.yml</pre>
+
+## Setup Northwind ##
+use phpmyadmin (http://192.168.1.213) and run the sql in 'northwind.sql'
+
 
 
 
