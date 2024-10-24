@@ -3,6 +3,7 @@ apiVersion: apps/v1
 metadata:
   #name and label for deployment
   name: wikiserver
+  namespace: wikiserver
   labels:
     app: wikiserver
 spec:
@@ -60,7 +61,6 @@ spec:
           configMap:
             name: wiki-configmap
             items:
-            - key: settings
-              path: LocalSettings.php
-
+            - key: LocalSettings.php
+              path: "LocalSettings.php"
 
