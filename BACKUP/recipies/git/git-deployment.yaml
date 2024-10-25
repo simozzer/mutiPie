@@ -3,6 +3,7 @@ apiVersion: apps/v1
 metadata:
   #name and label for deployment
   name: gitserver
+  namespace: git-server
   labels:
     app: gitserver
 spec:
@@ -30,9 +31,9 @@ spec:
           # name of path in container
           - mountPath: /git
             # name of volmume to use at this mound point
-            name: git-volume
+            name: git-storage
       volumes:
-      - name: git-volume
-        hostPath:
-          path: /mnt/samba/volumes/git
+        - name: git-storage
+          persistentVolumeClaim:
+            claimName: git-pvc          
 

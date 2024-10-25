@@ -3,7 +3,7 @@ kind: Service
 metadata:
   #re-use deployment label here
   name: gitserver
-
+  namespace: git-server
 spec:
   ports:
     #name of port from deployment
