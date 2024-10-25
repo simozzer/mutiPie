@@ -8,8 +8,8 @@ allowVolumeExpansion: true
 reclaimPolicy: "Delete"
 volumeBindingMode: Immediate
 parameters:
-  numberOfReplicas: "2"
+  numberOfReplicas: "1"
   staleReplicaTimeout: "30"
   fsType: "ext4"
   diskSelector: "nvme"
-  nodeSelector: "nvme"
+  nodeSelector: "nvme-container"

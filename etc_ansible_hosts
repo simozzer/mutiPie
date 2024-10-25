@@ -9,15 +9,17 @@ pi4node4  ansible_connection=ssh  var_hostname=pi4node4 var_disk=sdb var_uuid=a4
 
 [workers_nvme]
 pi4node4  ansible_connection=ssh  var_hostname=pi4node4 var_disk=sda3 var_uuid=20208877-9e82-461a-8fee-4ef0e22a0688 var_path=storage02
-piserver  ansible_connection=ssh  var_hostname=piserver var_disk=sda3 var_uuid=f689ba69-65d9-46c0-9924-137d09c9fbd8 var_path=storage02
+#piserver  ansible_connection=ssh  var_hostname=piserver var_disk=sda3 var_uuid=f689ba69-65d9-46c0-9924-137d09c9fbd8 var_path=storage02
 
 [workers]
 pi4node1  ansible_connection=ssh  var_hostname=pi4node1 var_ip_eth=10.90.90.91 var_ip_wlan=192.168.1.29 
 pi4node2  ansible_connection=ssh  var_hostname=pi4node2 var_ip_eth=10.90.90.92 var_ip_wlan=192.168.1.28
 pi4node3  ansible_connection=ssh  var_hostname=pi4node3 var_ip_eth=10.90.90.93 var_ip_wlan=192.168.1.27 
 pi4node4  ansible_connection=ssh  var_hostname=pi4node4 var_ip_eth=10.90.90.99 var_ip_wlan=192.168.1.24
-piserver  ansible_connection=ssh  var_hostname=piserver var_ip_eth=10.10.0.20 var_ip_wlan=192.168.1.90
+#piserver  ansible_connection=ssh  var_hostname=piserver var_ip_eth=10.10.0.20 var_ip_wlan=192.168.1.90
 
+[nfs_backup]
+simozzer-P17SM  var_hostname=simozzer-P17SM var_ip_eth=10.90.90.96 var_ip_wlan=192.168.1.33
 
 [cube:children]
 control

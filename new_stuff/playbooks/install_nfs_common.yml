@@ -1,0 +1,9 @@
+---
+- name: "Install nfs common  (state=present is optional)"
+  hosts: workers
+  remote_user: simozzer
+
+  tasks:
+  - apt:
+      name: nfs-common
+      state: present

@@ -5,7 +5,7 @@ System is still fairly unstable and may require <pre>sudo systemctl restart k3s<
 
 * (Portainer)[http://192.168.1.203:9000/]
 * (Longhorn)[http://192.168.1.201/]
-* (ArgoCD)[https://192.168.1.208/]
+* (ArgoCD)[https://192.168.1.212/]
 * (Grafana)[http://192.168.1.206:3000/]
 * (Prometheus)[http://192.168.1.205:9090]
 * (MySQL) 192.168.1.210:3306
@@ -13,7 +13,8 @@ System is still fairly unstable and may require <pre>sudo systemctl restart k3s<
 * (Prometheus-external)[http://192.168.1.217:9090]
 * (Redis-Server) 192.168.1.204:6379
 * (Docker-Registry) 192.168.1.207:5000
-
+* (Wiki) [http://192.168.1.218]
+* (Backup) [cifs://10.90.90.96/sharing]
 (Most information is from https://rpi4cluster.com/k3s-kubernetes-install/)
 
 I'm starting from a point where I've already built up and tore down this cluster many times, so there will be packages that
@@ -23,7 +24,7 @@ without finding a few undocumented steps.
 ## Machines in cluster ##
 | Name | Type | WLAN IP | ETH IP | RAM | STORAGE | BOOT MEDIA | EXTRAS | ROLE |
 | - | - | - | - | - | - | - | - | - |
-| piserver | Pi 5 | 10.10.0.20 | 192.168.1.90 | 8GB | 256GB NVME (USB) | | Hailo8 | Worker |
+| piserver | Pi 5 | 10.10.0.20 | 192.168.1.90 | 8GB | 256GB NVME (USB) | | Hailo8 | AI |
 | pi4node1 | Pi 4b | 10.90.90.91 | 192.168.1.29 | 8GB | 32GB USB3 | 128GB MicroSD | | Worker |
 | pi4node2 | Pi 4b | 10.90.90.92 | 192.168.1.28 | 8GB | 32GB USB3 | 128GB MicroSD | | Worker |
 | pi4node3 | Pi 4b | 10.90.90.93 | 192.168.1.27 | 4GB | 32GB USB3 | 128GB MicroSD | | Worker |
@@ -49,23 +50,33 @@ I want to keep 'pi4node5' accessible by machines on my network (those that are n
 ff02::1         ip6-allnodes
 ff02::2         ip6-allrouters
 
+#192.168.1.215  pibuntu
+
 10.90.90.91     pi4node1 pi4node1.dev.com
-#192.168.1.29   pi4node1 pi4node1.dev.com
+192.168.1.29   pi4node1 pi4node1.dev.com
 
 10.90.90.92     pi4node2 pi4node2.dev.com
-#192.168.1.28   pi4node2 pi4node2.dev.com
+192.168.1.28   pi4node2 pi4node2.dev.com
 
 10.90.90.93     pi4node3 pi4node3.dev.com
-#192.168.1.27   pi4node3 pi4node3.dev.com
+192.168.1.27   pi4node3 pi4node3.dev.com
 
 10.90.90.99     pi4node4 pi4node4.dev.com
-#192.168.1.24   pi4node4 pi4node4.dev.com
+192.168.1.24   pi4node4 pi4node4.dev.com
 
 10.90.90.98     pi4node5 pi4node5.dev.com
-#192.168.1.22    pi4node5 pi4node5.dev.com
+192.168.1.22    pi4node5 pi4node5.dev.com
 
 10.10.0.20      piserver piserver.dev.com
-#192.168.1.90    piserver piserver.dev.com
+192.168.1.90   piserver piserver.dev.com
+
+10.90.90.96     simozzer-P17SM simozzer-P17SM.dev.com
+192.168.1.33    simozzer-P17SM simozzer-P17SM.dev.com
+
+192.168.1.202 registry registry.cube.local
+192.168.1.204 redis redis.cube.local
+
+192.168.1.22 cube.local
 </pre>
 ### Install K3S on the master node ###
 (piserver)
@@ -74,6 +85,9 @@ ff02::2         ip6-allrouters
 
 
 <pre>curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --disable servicelb --token ${MY_K3S_TOKEN} --node-taint CriticalAddonsOnly=true:NoExecute --bind-address ${CONTROL_PLANE_IP} --tls-san ${CONTROL_PLANE_IP} --node-ip ${CONTROL_PLANE_IP} --disable-cloud-controller --disable local-storage</pre>
+
+Trying with
+<pre>curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --token ${MY_K3S_TOKEN} --node-taint CriticalAddonsOnly=true:NoExecute --bind-address ${CONTROL_PLANE_IP} --tls-san ${CONTROL_PLANE_IP} --node-ip ${CONTROL_PLANE_IP} --disable-cloud-controller --disable local-storage></pre>
 
 Check it is installed <pre>kubectl version</pre>
 
@@ -159,6 +173,13 @@ Attempt2 WORKED: <pre>for crd in $(kubectl get crd -o name | grep longhorn); do 
 <pre>kubectl create namespace docker-registry</pre>
 <pre>cd docker-registry</pre>
 <pre>kubectl apply -f pvc.yml && kubectl apply -f deployment.yml && kubectl apply -f service.yml</pre>
+Again this fails
+<pre># kubectl get all -n docker-registry
+...NAME                       TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)          AGE
+...service/registry-service   LoadBalancer   10.43.67.31   <pending>     5000:32447/TCP   69s
+</pre>
+<pre>fix with 
+
 
 ## Create Redis Server ##
 <pre>kubectl create namespace redis-server</pre>
@@ -180,7 +201,7 @@ If not assigned an external IP <pre>kubectl patch svc portainer -p '{"spec": {"t
 Get password: <pre>kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo</pre>
 <pre>sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-arm64</pre>
 <pre>sudo chmod +x /usr/local/bin/argocd</pre>
-<pre>argocd login 192.168.1.208</pre> (using password from above)
+<pre>argocd login 192.168.1.212</pre> (using password from above)
 Change password: <pre>argocd account update-password --account admin</pre>
 
 AT THIS POINT ARGOCD IS INSTALLED.. need to read up more to find out how to use it!!!????
@@ -238,15 +259,24 @@ metadata:
   name: wikimedia-db-secrets
 type: Opaque
 data:
-  username: fdgdf==
-  password: d2lrhaQ==
+  username: d2lraQo=
+  password: d2lraQo=
 </pre>
 <pre>kubectl apply -f ./wikimedia-db-secrets</pre>
 <pre>kubectl apply -f wiki-deployment.yaml</pre>
 <pre>kubectl apply -f wiki-service.yaml</pre>
-Open 'http://192.168.1.212' in a browser, complete the questionaire and once complete download 'LocalSettings.php'.
+Open 'http://192.168.1.218' in a browser, complete the questionaire and once complete download 'LocalSettings.php'.
 Using Portainer open ConfigMags & Secrets and create a with the name 'wikimedia-secrets'. Add a value named 'main-config' and paste in the contents of 'LocalSettings.php'.
 <pre>kubectl apply -f wiki-deployment-final.yaml</pre>
+<pre>kubectl cp -n wikiserver LocalSettings.php /wikiserver-6cc64b58fc-9m684:/var/www/html/LocalSettings.php</pre>
+<pre>kubectl cp -n wikiserver LocalSettings.php /wikiserver-6cc64b58fc-9m684:~<pre>
+
+# Backup #
+TODO:  Add instructions on settings up raid array, sharing it with samba, and using it as a cifs backup target cifs://10.90.90.96/sharing
+
+
+
+
 
 
 

@@ -11,4 +11,6 @@ spec:
   - name: wiki-port
     port: 80
     targetPort: 80
-  loadBalancerIP: 192.168.1.212
+  loadBalancerIP: 192.168.1.218
+  externalIPs: 
+    [192.168.1.218]  

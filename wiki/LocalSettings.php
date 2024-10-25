@@ -21,7 +21,7 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 ## Uncomment this to disable output compression
 # $wgDisableOutputCompression = true;
 
-$wgSitename = 'SiWiki';
+$wgSitename = 'SiWIki';
 
 ## The URL base path to the directory containing the wiki;
 ## defaults for all runtime URL paths are based off of this.
@@ -31,7 +31,7 @@ $wgSitename = 'SiWiki';
 $wgScriptPath = '';
 
 ## The protocol and server name to use in fully-qualified URLs
-$wgServer = 'http://192.168.1.212';
+$wgServer = 'http://192.168.1.218';
 
 ## The URL path to static resources (images, scripts, etc.)
 $wgResourceBasePath = $wgScriptPath;
@@ -63,7 +63,7 @@ $wgDBuser = 'wiki';
 $wgDBpassword = 'wiki';
 
 # MySQL specific settings
-$wgDBprefix = "";
+$wgDBprefix = "wiki";
 $wgDBssl = false;
 
 # MySQL table options to use during installation or update
@@ -102,14 +102,14 @@ $wgLocaltimezone = 'UTC';
 ## be publicly accessible from the web.
 #$wgCacheDirectory = "$IP/cache";
 
-$wgSecretKey = '1379cca3110959d510bf57d19216449f07ec143127254df5989c92f789c80822';
+$wgSecretKey = '13970f20b53831ae603ff360027fcaecc566cdbe9904b10e0ab009d1a344dd91';
 
 # Changing this will log out all existing sessions.
 $wgAuthenticationTokenVersion = '1';
 
 # Site upgrade key. Must be set to a string (default provided) to turn on the
 # web installer while LocalSettings.php is in place
-$wgUpgradeKey = 'e1665a54391aa12d';
+$wgUpgradeKey = '68becd471366a6e0';
 
 ## For attaching licensing metadata to pages, and displaying an
 ## appropriate copyright notice / icon. GNU Free Documentation
