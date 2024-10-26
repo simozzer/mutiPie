@@ -6,10 +6,11 @@ pi4node1  ansible_connection=ssh  var_hostname=pi4node1 var_disk=sda var_uuid=d9
 pi4node2  ansible_connection=ssh  var_hostname=pi4node2 var_disk=sda var_uuid=dceddc62-cdd2-47c3-9926-6f358c23bdef var_path=storage01
 pi4node3  ansible_connection=ssh  var_hostname=pi4node3 var_disk=sda var_uuid=2c46b0d1-2faa-4c61-8820-4ddcb20446fe var_path=storage01
 pi4node4  ansible_connection=ssh  var_hostname=pi4node4 var_disk=sdb var_uuid=a4ffe513-4f5b-41d6-b396-58a6d86a7e40 var_path=storage01
+pi52  ansible_connection=ssh  var_hostname=pi52 var_disk=sbd var_uuid=19B6-913D var_path=storage01
 
 [workers_nvme]
-pi4node4  ansible_connection=ssh  var_hostname=pi4node4 var_disk=sda3 var_uuid=20208877-9e82-461a-8fee-4ef0e22a0688 var_path=storage02
-#piserver  ansible_connection=ssh  var_hostname=piserver var_disk=sda3 var_uuid=f689ba69-65d9-46c0-9924-137d09c9fbd8 var_path=storage02
+pi4node4  ansible_connection=ssh  var_hostname=pi4node4 var_disk=sda3 var_uuid=20208877-9e82-461a-8fee-4ef0e22a0688 var_path=storage02 var_ip_eth=10.90.90.99 var_ip_wlan=192.168.1.24
+piserver  ansible_connection=ssh  var_hostname=piserver var_disk=sda3 var_uuid=f689ba69-65d9-46c0-9924-137d09c9fbd8 var_path=storage02 var_ip_eth=10.10.0.20 var_ip_wlan=192.168.1.90
 
 [workers]
 pi4node1  ansible_connection=ssh  var_hostname=pi4node1 var_ip_eth=10.90.90.91 var_ip_wlan=192.168.1.29 
@@ -17,6 +18,7 @@ pi4node2  ansible_connection=ssh  var_hostname=pi4node2 var_ip_eth=10.90.90.92 v
 pi4node3  ansible_connection=ssh  var_hostname=pi4node3 var_ip_eth=10.90.90.93 var_ip_wlan=192.168.1.27 
 pi4node4  ansible_connection=ssh  var_hostname=pi4node4 var_ip_eth=10.90.90.99 var_ip_wlan=192.168.1.24
 #piserver  ansible_connection=ssh  var_hostname=piserver var_ip_eth=10.10.0.20 var_ip_wlan=192.168.1.90
+pi52  ansible_connection=ssh  var_hostname=pi52 var_ip_eth=10.90.90.94 var_ip_wlan=192.168.1.52
 
 [nfs_backup]
 simozzer-P17SM  var_hostname=simozzer-P17SM var_ip_eth=10.90.90.96 var_ip_wlan=192.168.1.33
@@ -24,3 +26,4 @@ simozzer-P17SM  var_hostname=simozzer-P17SM var_ip_eth=10.90.90.96 var_ip_wlan=1
 [cube:children]
 control
 workers
+
