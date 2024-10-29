@@ -8,6 +8,8 @@
 --     Run the following command in a terminal window.
 --     mysql
 --     Copy and paste the SQL below into the terminal window to create the Northwind database.
+-- Taken From:
+--     https://en.wikiversity.org/wiki/Database_Examples/Northwind/MySQL
 
 CREATE DATABASE IF NOT EXISTS Northwind;
 USE Northwind;
@@ -18,7 +20,7 @@ DROP TABLE IF EXISTS Products;
 DROP TABLE IF EXISTS Categories;
 DROP TABLE IF EXISTS Customers;
 DROP TABLE IF EXISTS Employees;
-DROP TABLE IF EXISTS Shippers;
+DROP TABLE IF EXISTS Shippers;mmc
 DROP TABLE IF EXISTS Suppliers;
 
 START TRANSACTION;

@@ -17,22 +17,6 @@ System is still fairly unstable and may require <pre>sudo systemctl restart k3s<
 * (Backup) [cifs://10.90.90.96/sharing]
 
 
-* [http://192.168.1.203:9000/ Portainer]
-* [http://192.168.1.201/ Longhorn]
-* [https://192.168.1.208/ ArgoCD]
-* [http://192.168.1.206:3000/ Grafana]
-* [http://192.168.1.205:9090 Prometheus]
-* MySQL 192.168.1.210:3306
-* [http://192.168.1.213 PhpMyAdmin]
-* [http://192.168.1.217:9090 Prometheus-external]
-* Redis-Server 192.168.1.204:6379
-* Docker-Registry 192.168.1.207:5000
-* [http://192.168.1.218 Wiki]
-
-* Backup cifs://10.90.90.96/sharing
-
-
-
 (Most information is from https://rpi4cluster.com/k3s-kubernetes-install/)
 
 I'm starting from a point where I've already built up and tore down this cluster many times, so there will be packages that
@@ -223,7 +207,7 @@ Change password: <pre>argocd account update-password --account admin</pre>
 
 AT THIS POINT ARGOCD IS INSTALLED.. need to read up more to find out how to use it!!!????
 
-# Monitoring #sud
+# Monitoring #
 <pre>cd prometheus-operator</pre>
 <pre>kubectl create namespace monitoring</pre>
 <pre>wget https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/bundle.yaml</pre>
