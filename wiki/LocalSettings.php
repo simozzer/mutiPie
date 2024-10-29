@@ -63,7 +63,7 @@ $wgDBuser = 'wiki';
 $wgDBpassword = 'wiki';
 
 # MySQL specific settings
-$wgDBprefix = "wiki";
+$wgDBprefix = "";
 $wgDBssl = false;
 
 # MySQL table options to use during installation or update
@@ -102,14 +102,14 @@ $wgLocaltimezone = 'UTC';
 ## be publicly accessible from the web.
 #$wgCacheDirectory = "$IP/cache";
 
-$wgSecretKey = '13970f20b53831ae603ff360027fcaecc566cdbe9904b10e0ab009d1a344dd91';
+$wgSecretKey = 'fd466df6c86edd8bd47e3e4fa1119bba9b7265681066f3910f563dd982472d24';
 
 # Changing this will log out all existing sessions.
 $wgAuthenticationTokenVersion = '1';
 
 # Site upgrade key. Must be set to a string (default provided) to turn on the
 # web installer while LocalSettings.php is in place
-$wgUpgradeKey = '68becd471366a6e0';
+$wgUpgradeKey = 'cc6f9b408041c89e';
 
 ## For attaching licensing metadata to pages, and displaying an
 ## appropriate copyright notice / icon. GNU Free Documentation

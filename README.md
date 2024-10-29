@@ -5,7 +5,7 @@ System is still fairly unstable and may require <pre>sudo systemctl restart k3s<
 
 * (Portainer)[http://192.168.1.203:9000/]
 * (Longhorn)[http://192.168.1.201/]
-* (ArgoCD)[https://192.168.1.212/]
+* (ArgoCD)[https://192.168.1.208/]
 * (Grafana)[http://192.168.1.206:3000/]
 * (Prometheus)[http://192.168.1.205:9090]
 * (MySQL) 192.168.1.210:3306
@@ -15,6 +15,24 @@ System is still fairly unstable and may require <pre>sudo systemctl restart k3s<
 * (Docker-Registry) 192.168.1.207:5000
 * (Wiki) [http://192.168.1.218]
 * (Backup) [cifs://10.90.90.96/sharing]
+
+
+* [http://192.168.1.203:9000/ Portainer]
+* [http://192.168.1.201/ Longhorn]
+* [https://192.168.1.208/ ArgoCD]
+* [http://192.168.1.206:3000/ Grafana]
+* [http://192.168.1.205:9090 Prometheus]
+* MySQL 192.168.1.210:3306
+* [http://192.168.1.213 PhpMyAdmin]
+* [http://192.168.1.217:9090 Prometheus-external]
+* Redis-Server 192.168.1.204:6379
+* Docker-Registry 192.168.1.207:5000
+* [http://192.168.1.218 Wiki]
+
+* Backup cifs://10.90.90.96/sharing
+
+
+
 (Most information is from https://rpi4cluster.com/k3s-kubernetes-install/)
 
 I'm starting from a point where I've already built up and tore down this cluster many times, so there will be packages that
@@ -22,14 +40,14 @@ I'm using which might not be part of the standard install for Raspberry Pi OS. D
 without finding a few undocumented steps.
 
 ## Machines in cluster ##
-| Name | Type | WLAN IP | ETH IP | RAM | STORAGE | BOOT MEDIA | EXTRAS | ROLE |
-| - | - | - | - | - | - | - | - | - |
-| piserver | Pi 5 | 10.10.0.20 | 192.168.1.90 | 8GB | 256GB NVME (USB) | | Hailo8 | AI |
-| pi4node1 | Pi 4b | 10.90.90.91 | 192.168.1.29 | 8GB | 32GB USB3 | 128GB MicroSD | | Worker |
-| pi4node2 | Pi 4b | 10.90.90.92 | 192.168.1.28 | 8GB | 32GB USB3 | 128GB MicroSD | | Worker |
-| pi4node3 | Pi 4b | 10.90.90.93 | 192.168.1.27 | 4GB | 32GB USB3 | 128GB MicroSD | | Worker |
-| pi4node4 | Pi 4b | 10.90.90.99 | 192.168.1.24 | 8GB | 256GB NVME (USB) + 32GB USB | 256GB NVME | | Backup |
-| pi4node5 | Pi 4b | 10.90.90.98 | 192.168.1.22 | 8GB | 32GB USB3 | 128GB MicroSD | 7 Inch LCD | Master |
+| Name | Type | WLAN IP | ETH IP | RAM | STORAGE | BOOT MEDIA | EXTRAS | ROLE | DESCIPTION \
+| - | - | - | - | - | - | - | - | - | - |
+| piserver | Pi 5 | 10.10.0.20 | 192.168.1.90 | 8GB | 256GB NVME (USB) | | Hailo8 | AI | Not a Worker. Reserved for AI 
+| pi4node1 | Pi 4b | 10.90.90.91 | 192.168.1.29 | 8GB | 32GB USB3 | 128GB MicroSD | | Worker | |
+| pi4node2 | Pi 4b | 10.90.90.92 | 192.168.1.28 | 8GB | 32GB USB3 | 128GB MicroSD | | Worker | |
+| pi4node3 | Pi 4b | 10.90.90.93 | 192.168.1.27 | 4GB | 32GB USB3 | 128GB MicroSD | | Worker | |
+| pi4node4 | Pi 4b | 10.90.90.99 | 192.168.1.24 | 8GB | 256GB NVME (USB) + 32GB USB | 256GB NVME | | Backup | CIFS backup
+| pi4node5 | Pi 4b | 10.90.90.98 | 192.168.1.22 | 8GB | 32GB USB3 | 128GB MicroSD | 7 Inch LCD | Master | |
 
 I'm using the domain 'dev.com' (e.g. the FQDN for pi4node1 is pi4node1.dev.com).
 
@@ -81,22 +99,24 @@ ff02::2         ip6-allrouters
 
 192.168.1.22 cube.local
 </pre>
+
+
+#### Instal IP Tables ####
+<pre>ansible cube -m apt -a "name=iptables state=present" --become</pre>
+<pre>ansible cube -m apt -a "name=ufw state=absent" --become</pre>
+
 ### Install K3S on the master node ###
 (piserver)
 
 <pre>export CONTROL_PLANE_IP=10.90.90.98 && export MY_K3S_TOKEN=dsfuyasdfahjskt234524</pre>
 
 
-<pre>curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --disable servicelb --token ${MY_K3S_TOKEN} --node-taint CriticalAddonsOnly=true:NoExecute --bind-address ${CONTROL_PLANE_IP} --tls-san ${CONTROL_PLANE_IP} --node-ip ${CONTROL_PLANE_IP} --disable-cloud-controller --disable local-storage</pre>
+<pre>curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --disable servicelb --token ${MY_K3S_TOKEN} --node-taint CriticalAddonsOnly=true:NoExecute --tls-san ${CONTROL_PLANE_IP} --node-ip ${CONTROL_PLANE_IP} --disable-cloud-controller --disable local-storage</pre>
 
-Trying with
-<pre>curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --token ${MY_K3S_TOKEN} --node-taint CriticalAddonsOnly=true:NoExecute --bind-address ${CONTROL_PLANE_IP} --tls-san ${CONTROL_PLANE_IP} --node-ip ${CONTROL_PLANE_IP} --disable-cloud-controller --disable local-storage></pre>
 
 Check it is installed <pre>kubectl version</pre>
 
 ### Install K3S on the worker nodes ###
-
-~~ansible workers -b -m shell -a "curl -sfL https://get.k3s.io | K3S_URL=https://${CONTROL_PLANE_IP}:6443 K3S_TOKEN=${MY_K3S_TOKEN} sh -"~~
 Use the following to assign the ethernet adapter ip address to the node ip
 <pre>ansible workers -b -m shell -a "curl -sfL https://get.k3s.io | K3S_URL=https://${CONTROL_PLANE_IP}:6443 K3S_TOKEN=${MY_K3S_TOKEN} sh -s - --node-ip {{ var_ip_eth  }}"</pre>
 
@@ -135,16 +155,7 @@ Then test
 ### Install Longhorn ###
 <pre>./install_longhorn_deps.sh</pre>
 
-
-THE NEXT 6 LINES ARE TO PREPARE THE VOLUMES (Shouldn't need to do this on rebuild)
-Unmount <pre>ansible workers_usb -b -m shell -a "umount /dev/{{ var_disk }}"</pre>
-Wipe <pre>ansible workers_usb -b -m shell -a "wipefs -a /dev/{{ var_disk }}"</pre>
-Format <pre>ansible workers_usb -b -m filesystem -a "fstype=ext4 dev=/dev/{{ var_disk }}"</pre>
-Get blkIds <pre>ansible workers_usb -b -m shell -a "blkid -s UUID -o value /dev/{{ var_disk }}"</pre>
-Add ids to hosts
-Mount <pre>ansible workers_usb -m ansible.posix.mount -a "path=/storage01 src=UUID={{ var_uuid }} fstype=ext4 state=mounted" -b</pre>
-<pre>ansible workers_nvme -m ansible.posix.mount -a "path=/storage02 src=UUID={{ var_uuid }} fstype=ext4 state=mounted" -b</pre>
-
+<pre>./prepare_volumes.sh</pre>
 TODO: Add instructions on cluster rebuild for storage
 
 ### Install Longhorn ##
@@ -161,8 +172,11 @@ At this point the setting of the extenal IP for service/longhorn-ingress-lb was 
 same thing happens with portainer:
 <pre>kubectl patch svc portainer -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.1.203"]}}' -n portainer</pre>
 ##### Remember!!! Add fstab entries on each node #####
-TODOTODOTODOTODOTODOTODOTODO -tag nodes
+TODOTODOTODOTODOTODOTODOTODO -tag nodes in portainer
 
+
+<pre>kubectl apply -f ./longhorn-usb-storage-class.yaml</pre>
+<pre>kubectl apply -f ./longhorn-nvme-storage-class.yaml</pre>
 
 
 ##### TROUBLE DELETING LONGHORN #####
@@ -204,12 +218,12 @@ If not assigned an external IP <pre>kubectl patch svc portainer -p '{"spec": {"t
 Get password: <pre>kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo</pre>
 <pre>sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-arm64</pre>
 <pre>sudo chmod +x /usr/local/bin/argocd</pre>
-<pre>argocd login 192.168.1.212</pre> (using password from above)
+<pre>argocd login 192.168.1.208</pre> (using password from above)
 Change password: <pre>argocd account update-password --account admin</pre>
 
 AT THIS POINT ARGOCD IS INSTALLED.. need to read up more to find out how to use it!!!????
 
-# Monitoring #
+# Monitoring #sud
 <pre>cd prometheus-operator</pre>
 <pre>kubectl create namespace monitoring</pre>
 <pre>wget https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/bundle.yaml</pre>
@@ -271,8 +285,8 @@ data:
 Open 'http://192.168.1.218' in a browser, complete the questionaire and once complete download 'LocalSettings.php'.
 Using Portainer open ConfigMags & Secrets and create a with the name 'wikimedia-secrets'. Add a value named 'main-config' and paste in the contents of 'LocalSettings.php'.
 <pre>kubectl apply -f wiki-deployment-final.yaml</pre>
-<pre>kubectl cp -n wikiserver LocalSettings.php /wikiserver-6cc64b58fc-9m684:/var/www/html/LocalSettings.php</pre>
-<pre>kubectl cp -n wikiserver LocalSettings.php /wikiserver-6cc64b58fc-9m684:~<pre>
+<pre>kubectl cp -n wikiserver LocalSettings.php /wikiserver-86477d8c84-nwkc5:/var/www/html/LocalSettings.php</pre>
+<pre>kubectl cp -n wikiserver LocalSettings.php /wikiserver-86477d8c84-nwkc5:~<pre>
 
 # Backup #
 TODO:  Add instructions on settings up raid array, sharing it with samba, and using it as a cifs backup target cifs://10.90.90.96/sharing

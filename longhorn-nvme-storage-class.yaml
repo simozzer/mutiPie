@@ -1,0 +1,15 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: longhorn-nvme
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+parameters:
+  numberOfReplicas: "2" #We only have 2 nvme drives!
+  staleReplicaTimeout: "2880"
+  fromBackup: ""
+  fsType: "ext4"
+  diskSelector: "nvme-disk"
+  nodeSelector: "nvme-container"  

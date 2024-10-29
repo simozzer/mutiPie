@@ -4,14 +4,14 @@ pi4node5  ansible_connection=local  var_hostname=pi4node5 var_ip_eth=10.90.90.98
 [workers_usb]
 pi4node1  ansible_connection=ssh  var_hostname=pi4node1 var_disk=sda var_uuid=d9cf4fd5-1bbd-4eaf-a5ff-6dfb95d0d033 var_path=storage01
 pi4node2  ansible_connection=ssh  var_hostname=pi4node2 var_disk=sda var_uuid=dceddc62-cdd2-47c3-9926-6f358c23bdef var_path=storage01
-pi4node3  ansible_connection=ssh  var_hostname=pi4node3 var_disk=sda var_uuid=2c46b0d1-2faa-4c61-8820-4ddcb20446fe var_path=storage01
+pi4node3  ansible_connection=ssh  var_hostname=pi4node3 var_disk=sda var_uuid=677ef3cf-3833-4584-962d-7fab31a57c69 var_path=storage01
 pi4node4  ansible_connection=ssh  var_hostname=pi4node4 var_disk=sdb var_uuid=a4ffe513-4f5b-41d6-b396-58a6d86a7e40 var_path=storage01
-pi52  ansible_connection=ssh  var_hostname=pi52 var_disk=sbd var_uuid=93549d0b-2156-45b8-89ec-9fe8eac066e0 var_path=storage01
+pi52  ansible_connection=ssh  var_hostname=pi52 var_disk=sbd1 var_uuid=93549d0b-2156-45b8-89ec-9fe8eac066e0 var_path=storage01
 piserver ansible_connection=ssh var_hostname=piserver var_disk=sbd1 var_uuid=007c78f6-f285-4ceb-ad56-dc9f33712fea var_path=storage01
 
 [workers_nvme]
-pi4node4  ansible_connection=ssh  var_hostname=pi4node4 var_disk=sda3 var_uuid=20208877-9e82-461a-8fee-4ef0e22a0688 var_path=storage02 var_ip_eth=10.90.90.99 var_ip_wlan=192.168.1.24
-piserver  ansible_connection=ssh  var_hostname=piserver var_disk=sda3 var_uuid=f689ba69-65d9-46c0-9924-137d09c9fbd8 var_path=storage02 var_ip_eth=10.10.0.20 var_ip_wlan=192.168.1.90
+pi4node4  ansible_connection=ssh  var_hostname=pi4node4 var_disk=sda3 var_uuid=50a7e77b-412e-4029-aadc-2a8ddf7c1ed0 var_path=storage02 var_ip_eth=10.90.90.99 var_ip_wlan=192.168.1.24
+piserver  ansible_connection=ssh  var_hostname=piserver var_disk=sda3 var_uuid=d3b294f4-91f1-4233-b995-a8d626bbc0cb var_path=storage02 var_ip_eth=10.10.0.20 var_ip_wlan=192.168.1.90
 
 [workers]
 pi4node1  ansible_connection=ssh  var_hostname=pi4node1 var_ip_eth=10.90.90.91 var_ip_wlan=192.168.1.29 
@@ -27,10 +27,3 @@ simozzer-P17SM  var_hostname=simozzer-P17SM var_ip_eth=10.90.90.96 var_ip_wlan=1
 [cube:children]
 control
 workers
-
-
-pi4node2 | CHANGED | rc=0 >>
-
-piserver | CHANGED | rc=0 >>
-
-
