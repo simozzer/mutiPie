@@ -73,6 +73,9 @@ ff02::2         ip6-allrouters
 10.90.90.96     simozzer-P17SM simozzer-P17SM.dev.com
 192.168.1.33    simozzer-P17SM simozzer-P17SM.dev.com
 
+10.90.90.94     pi52 pi52.dev.com
+192.168.1.52    pi52 pi52.dev.com
+
 192.168.1.202 registry registry.cube.local
 192.168.1.204 redis redis.cube.local
 
