@@ -5,7 +5,7 @@ pi4node5  ansible_connection=local  var_hostname=pi4node5 var_ip_eth=10.90.90.98
 pi4node1  ansible_connection=ssh  var_hostname=pi4node1 var_disk=sda var_uuid=d9cf4fd5-1bbd-4eaf-a5ff-6dfb95d0d033 var_path=storage01
 pi4node2  ansible_connection=ssh  var_hostname=pi4node2 var_disk=sda var_uuid=dceddc62-cdd2-47c3-9926-6f358c23bdef var_path=storage01
 pi4node3  ansible_connection=ssh  var_hostname=pi4node3 var_disk=sda var_uuid=677ef3cf-3833-4584-962d-7fab31a57c69 var_path=storage01
-pi4node4  ansible_connection=ssh  var_hostname=pi4node4 var_disk=sdb var_uuid=a4ffe513-4f5b-41d6-b396-58a6d86a7e40 var_path=storage01
+pi4node5  ansible_connection=ssh  var_hostname=pi4node5 var_disk=sdb var_uuid=a4ffe513-4f5b-41d6-b396-58a6d86a7e40 var_path=storage01
 pi52  ansible_connection=ssh  var_hostname=pi52 var_disk=sbd1 var_uuid=93549d0b-2156-45b8-89ec-9fe8eac066e0 var_path=storage01
 piserver ansible_connection=ssh var_hostname=piserver var_disk=sbd1 var_uuid=007c78f6-f285-4ceb-ad56-dc9f33712fea var_path=storage01
 
@@ -18,6 +18,7 @@ pi4node1  ansible_connection=ssh  var_hostname=pi4node1 var_ip_eth=10.90.90.91 v
 pi4node2  ansible_connection=ssh  var_hostname=pi4node2 var_ip_eth=10.90.90.92 var_ip_wlan=192.168.1.28
 pi4node3  ansible_connection=ssh  var_hostname=pi4node3 var_ip_eth=10.90.90.93 var_ip_wlan=192.168.1.27 
 pi4node4  ansible_connection=ssh  var_hostname=pi4node4 var_ip_eth=10.90.90.99 var_ip_wlan=192.168.1.24
+pi4node5  ansible_connection=ssh  var_hostname=pi4node5 var_ip_eth=10.90.90.98 var_ip_wlan=192.168.1.22
 piserver  ansible_connection=ssh  var_hostname=piserver var_ip_eth=10.10.0.20 var_ip_wlan=192.168.1.90
 pi52  ansible_connection=ssh  var_hostname=pi52 var_ip_eth=10.90.90.94 var_ip_wlan=192.168.1.52
 

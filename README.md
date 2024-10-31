@@ -47,62 +47,18 @@ I want to keep 'pi4node5' accessible by machines on my network (those that are n
 
 
 ### /etc/hosts ###
-<pre>127.0.0.1       localhost
-::1             localhost ip6-localhost ip6-loopback
-ff02::1         ip6-allnodes
-ff02::2         ip6-allrouters
-
-#192.168.1.215  pibuntu
-
-10.90.90.91     pi4node1 pi4node1.dev.com
-192.168.1.29   pi4node1 pi4node1.dev.com
-
-10.90.90.92     pi4node2 pi4node2.dev.com
-192.168.1.28   pi4node2 pi4node2.dev.com
-
-10.90.90.93     pi4node3 pi4node3.dev.com
-192.168.1.27   pi4node3 pi4node3.dev.com
-
-10.90.90.99     pi4node4 pi4node4.dev.com
-192.168.1.24   pi4node4 pi4node4.dev.com
-
-10.90.90.98     pi4node5 pi4node5.dev.com
-192.168.1.22    pi4node5 pi4node5.dev.com
-
-10.10.0.20      piserver piserver.dev.com
-192.168.1.90   piserver piserver.dev.com
-
-10.90.90.96     simozzer-P17SM simozzer-P17SM.dev.com
-192.168.1.33    simozzer-P17SM simozzer-P17SM.dev.com
-
-10.90.90.94     pi52 pi52.dev.com
-192.168.1.52    pi52 pi52.dev.com
-
-192.168.1.202 registry registry.cube.local
-192.168.1.204 redis redis.cube.local
-
-192.168.1.22 cube.local
-</pre>
+<pre>sudo cp ./etc_hosts /etc/hosts</pre>
 
 
 #### Instal IP Tables ####
 <pre>ansible cube -m apt -a "name=iptables state=present" --become</pre>
+I'm guessing this uninstalls UFW
 <pre>ansible cube -m apt -a "name=ufw state=absent" --become</pre>
 
-### Install K3S on the master node ###
+### Install K3S on the cluster ###
 (piserver)
+<pre>export CONTROL_PLANE_IP=10.90.90.98 && export MY_K3S_TOKEN=dsfuyasdfahjskt234524 && curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --disable servicelb --token ${MY_K3S_TOKEN} --node-taint CriticalAddonsOnly=true:NoExecute --tls-san ${CONTROL_PLANE_IP} --node-ip ${CONTROL_PLANE_IP} --disable-cloud-controller --disable local-storage && ansible workers -b -m shell -a "curl -sfL https://get.k3s.io | K3S_URL=https://${CONTROL_PLANE_IP}:6443 K3S_TOKEN=${MY_K3S_TOKEN} sh -s - --node-ip {{ var_ip_eth  }}"</pre>
 
-<pre>export CONTROL_PLANE_IP=10.90.90.98 && export MY_K3S_TOKEN=dsfuyasdfahjskt234524</pre>
-
-
-<pre>curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --disable servicelb --token ${MY_K3S_TOKEN} --node-taint CriticalAddonsOnly=true:NoExecute --tls-san ${CONTROL_PLANE_IP} --node-ip ${CONTROL_PLANE_IP} --disable-cloud-controller --disable local-storage</pre>
-
-
-Check it is installed <pre>kubectl version</pre>
-
-### Install K3S on the worker nodes ###
-Use the following to assign the ethernet adapter ip address to the node ip
-<pre>ansible workers -b -m shell -a "curl -sfL https://get.k3s.io | K3S_URL=https://${CONTROL_PLANE_IP}:6443 K3S_TOKEN=${MY_K3S_TOKEN} sh -s - --node-ip {{ var_ip_eth  }}"</pre>
 
 ### Label the worker nodes ###
 <pre>(readarray -t ARRAY < worker_names; IFS=','; kubectl label nodes "${ARRAY[@]}" kubernetes.io/role=worker)</pre>
@@ -271,6 +227,9 @@ Using Portainer open ConfigMags & Secrets and create a with the name 'wikimedia-
 <pre>kubectl apply -f wiki-deployment-final.yaml</pre>
 <pre>kubectl cp -n wikiserver LocalSettings.php /wikiserver-86477d8c84-nwkc5:/var/www/html/LocalSettings.php</pre>
 <pre>kubectl cp -n wikiserver LocalSettings.php /wikiserver-86477d8c84-nwkc5:~<pre>
+
+kubectl cp -n wikiserver LocalSettings.php /wikiserver-6cc64b58fc-t95gs:/var/www/html/LocalSettings.php
+pod/
 
 # Backup #
 TODO:  Add instructions on settings up raid array, sharing it with samba, and using it as a cifs backup target cifs://10.90.90.96/sharing

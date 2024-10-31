@@ -59,7 +59,7 @@ spec:
       volumes:
         - name: mediawiki-config
           configMap:
-            name: wikiserver-config
+            name: wikiserver-secret
             items:
             - key: LocalSettings.php
               path: "LocalSettings.php"

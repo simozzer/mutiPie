@@ -1,0 +1,35 @@
+127.0.0.1       localhost
+::1             localhost ip6-localhost ip6-loopback
+ff02::1         ip6-allnodes
+ff02::2         ip6-allrouters
+
+#192.168.1.215  pibuntu
+
+10.90.90.91     pi4node1 pi4node1.dev.com
+192.168.1.29   pi4node1 pi4node1.dev.com
+
+10.90.90.92     pi4node2 pi4node2.dev.com
+192.168.1.28   pi4node2 pi4node2.dev.com
+
+10.90.90.93     pi4node3 pi4node3.dev.com
+192.168.1.27   pi4node3 pi4node3.dev.com
+
+10.90.90.99     pi4node4 pi4node4.dev.com
+192.168.1.24   pi4node4 pi4node4.dev.com
+
+10.90.90.98     pi4node5 pi4node5.dev.com
+192.168.1.22    pi4node5 pi4node5.dev.com
+
+10.10.0.20      piserver piserver.dev.com
+192.168.1.90   piserver piserver.dev.com
+
+10.90.90.96     simozzer-P17SM simozzer-P17SM.dev.com
+192.168.1.33    simozzer-P17SM simozzer-P17SM.dev.com
+
+10.90.90.94     pi52 pi52.dev.com
+192.168.1.52    pi52 pi52.dev.com
+
+192.168.1.207 registry registry.cube.local
+192.168.1.204 redis redis.cube.local
+
+192.168.1.22 cube.local
