@@ -32,6 +32,7 @@ without finding a few undocumented steps.
 | pi4node3 | Pi 4b | 10.90.90.93 | 192.168.1.27 | 4GB | 32GB USB3 | 128GB MicroSD | | Worker | |
 | pi4node4 | Pi 4b | 10.90.90.99 | 192.168.1.24 | 8GB | 256GB NVME (USB) + 32GB USB | 256GB NVME | | Backup | CIFS backup
 | pi4node5 | Pi 4b | 10.90.90.98 | 192.168.1.22 | 8GB | 32GB USB3 | 128GB MicroSD | 7 Inch LCD | Master | |
+| pi52 | Pi 5 |  | 192.168.1.36 | 8GB | | | | |
 
 I'm using the domain 'dev.com' (e.g. the FQDN for pi4node1 is pi4node1.dev.com).
 
